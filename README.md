@@ -20,7 +20,7 @@ in case you need assistance from your mentors.
 
 #### Running the back-end server in Visual Studio Code
 
-Note: In the below example, the group's front-end repository was named `bb-practicum-team1-front` and the back-end repository was named `bb-practicum-team-1-back`. Your repository will have a different name, but the rest should look the same.
+Note: In the below example, the group's front-end repository was named `bb-practicum-team7-front` and the back-end repository was named `bb-practicum-team-7-back`. Your repository will have a different name, but the rest should look the same.
 ![vsc running](images/back-end-running-vsc.png)
 
 #### Testing the back-end server API in the browser

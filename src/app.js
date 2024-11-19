@@ -3,8 +3,12 @@ const app = express();
 const cors = require('cors')
 const favicon = require('express-favicon');
 const logger = require('morgan');
+const dotenv = require('dotenv');
+const bodyParser = require('body-parser');
 
-const mainRouter = require('./routes/mainRouter.js');
+dotenv.config();
+//const mainRouter = require('./routes/mainRouter.js');
+const userRoutes = require('./routes/userRoutes');
 
 // middleware
 app.use(cors());
@@ -15,6 +19,8 @@ app.use(express.static('public'))
 app.use(favicon(__dirname + '/public/favicon.ico'));
 
 // routes
-app.use('/api/v1', mainRouter);
+app.use(bodyParser.json()); 
+//app.use('/api/v1', mainRouter);
+app.use('/api/v1', userRoutes);
 
 module.exports = app;
