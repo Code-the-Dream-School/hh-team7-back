@@ -9,6 +9,8 @@ const bodyParser = require('body-parser');
 dotenv.config();
 //const mainRouter = require('./routes/mainRouter.js');
 const userRoutes = require('./routes/userRoutes');
+const eventRoutes = require('./routes/eventRoutes');
+const registrationRoutes = require('./routes/registrationRoutes');
 
 // middleware
 app.use(cors());
@@ -22,5 +24,7 @@ app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(bodyParser.json()); 
 //app.use('/api/v1', mainRouter);
 app.use('/api/v1', userRoutes);
+app.use('/api/v1', eventRoutes);
+app.use('/api/v1', registrationRoutes);
 
 module.exports = app;

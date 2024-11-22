@@ -1,60 +1,73 @@
-const User = require('../models/user');
+const { User } = require('../models');
 
 // create new user
 async function createUser(req, res) {
   try {
-    const { email, first_name, last_name, nickname, zipCode } = req.body;
-    const user = await User.create({
-      email,
-      first_name,
-      last_name,
-      nickname,
-      zipCode
-    });
+    const userData = req.body;
+    console.log(req.body)
+    const user = await User.create(userData);
     res.status(201).json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error creating user' });
+    console.error('Error creating user:', error);
+    res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 }
 
-// get user by email
-async function getUser(req, res) {
+// get all users
+async function getUsers(req, res) {
   try {
-    const { email } = req.query;
-    const user = await User.findOne({ where: { email } });
+    const users = await User.findAll({
+      where: req.query
+    });
+    res.status(200).json(users);
+  } catch (error) {
+    console.error('Error fetching users:', error);
+    res.status(500).json({ message: 'Error fetching users', error: error.message });
+  }
+}
+
+// get user by id
+async function getUserById(req, res) {
+  try {
+    const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
     res.status(200).json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error fetching user' });
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Error fetching user', error: error.message });
   }
 }
 
 // update user
 async function updateUser(req, res) {
   try {
-    const { email, first_name, last_name, nickname, zipCode } = req.body;
-    const user = await User.findOne({ where: { email } });
-
+    const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-
-    user.first_name = first_name || user.first_name;
-    user.last_name = last_name || user.last_name;
-    user.nickname = nickname || user.nickname;
-    user.zipCode = zipCode || user.zipCode;
-    user.modified_date = new Date();
-
-    await user.save();
+    await user.update(req.body);
     res.status(200).json(user);
   } catch (error) {
-    console.error(error);
-    res.status(500).json({ message: 'Error updating user' });
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Error updating user', error: error.message });
   }
 }
 
-module.exports = { createUser, getUser, updateUser };
+//delete user
+async function deleteUser(req, res) {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    await user.destroy();
+    res.status(204).send();
+  } catch (error) {
+    console.error('Error deleting user:', error);
+    res.status(500).json({ message: 'Error deleting user', error: error.message });
+  }
+}
+
+module.exports = { createUser, getUsers, getUserById, updateUser, deleteUser };
