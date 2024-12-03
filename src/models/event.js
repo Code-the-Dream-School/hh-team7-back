@@ -15,7 +15,7 @@ const Event = sequelize.define('Event', {
   },
   description: DataTypes.TEXT,
   date: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATE,  
     allowNull: false
   },
   location: {
@@ -35,45 +35,38 @@ const Event = sequelize.define('Event', {
     defaultValue: 'in-person'
   },
   price: {
-    type: DataTypes.DECIMAL(10, 2),
+    type: DataTypes.DECIMAL(10, 2),  
     defaultValue: 0.00
   },
-  registration_deadline: DataTypes.DATE,
+  registration_deadline: DataTypes.DATE,  
   min_capacity: DataTypes.INTEGER,
   max_capacity: DataTypes.INTEGER,
   is_private: {
     type: DataTypes.BOOLEAN,
     defaultValue: false
   },
-  venue_details: DataTypes.TEXT,
+  venue_details: DataTypes.TEXT,  
   event_banner_url: DataTypes.STRING,
-  organizerId: {
+  organizerid: {
     type: DataTypes.INTEGER,
     allowNull: false,
     references: {
-      model: 'users', // It should match the table name in the database, which is 'Users' or 'users' based on case sensitivity.
+      model: 'users', 
       key: 'id'
     }
   },
   created_date: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    type: DataTypes.DATE,  
+    defaultValue: DataTypes.NOW  
   },
   modified_date: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATE,  
     defaultValue: DataTypes.NOW
   }
 }, {
-    timestamps: false
-  });
+  tableName: 'events',
+  timestamps: false  
+});
 
-// Define associations
-// User.hasMany(Event, { foreignKey: 'organizerId' });
-// Event.belongsTo(User, { foreignKey: 'organizerId' });
 
-// // Many-to-many relationship through Registration table
-// User.belongsToMany(Event, { through: Registration });
-// Event.belongsToMany(User, { through: Registration });
-
-// Export the Event model
 module.exports = Event;

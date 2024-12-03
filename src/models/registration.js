@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
-const User = require('./user'); // Import the User model
-const Event = require('./event'); // Import the Event model
+const User = require('./user'); 
+const Event = require('./event'); 
 
 const Registration = sequelize.define('Registration', {
   id: {
@@ -9,20 +9,30 @@ const Registration = sequelize.define('Registration', {
     autoIncrement: true,
     primaryKey: true
   },
-  userId: {
+  userid: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'users', 
+      key: 'id'
+    },
+    field: 'userid' 
   },
-  eventId: {
+  eventid: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    references: {
+      model: 'events', 
+      key: 'id'
+    },
+    field: 'eventid' 
   },
   registration_date: {
-    type: DataTypes.DATE,
-    defaultValue: DataTypes.NOW
+    type: DataTypes.DATE, 
+    defaultValue: DataTypes.NOW 
   },
   status: {
-    type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'attended'),
+    type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'attended'), 
     defaultValue: 'pending',
     allowNull: false
   },
@@ -31,22 +41,16 @@ const Registration = sequelize.define('Registration', {
     allowNull: true
   },
   notes: {
-    type: DataTypes.TEXT,
+    type: DataTypes.TEXT, 
     allowNull: true
   },
   check_in_time: {
-    type: DataTypes.DATE,
+    type: DataTypes.DATE, 
     allowNull: true
   }
 }, {
-  // Options
-  tableName: 'registrations', // Set table name to match the SQL table
-  timestamps: false, // We will manage created/updated times manually if necessary
+  tableName: 'registrations', 
+  timestamps: false, 
 });
 
-// Define associations (Foreign Keys)
-// Registration.belongsTo(User, { foreignKey: 'userId', onDelete: 'CASCADE' });
-// Registration.belongsTo(Event, { foreignKey: 'eventId', onDelete: 'CASCADE' });
-
-// Export the Registration model
 module.exports = Registration;
