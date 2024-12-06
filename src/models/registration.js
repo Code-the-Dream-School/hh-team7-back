@@ -35,19 +35,19 @@ const Registration = sequelize.define('Registration', {
     type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'attended'), 
     defaultValue: 'pending',
     allowNull: false
-  },
-  payment_status: {
-    type: DataTypes.ENUM('pending', 'completed', 'refunded'),
-    allowNull: true
-  },
-  notes: {
-    type: DataTypes.TEXT, 
-    allowNull: true
-  },
-  check_in_time: {
-    type: DataTypes.DATE, 
-    allowNull: true
-  }
+  }//,
+  // payment_status: {
+  //   type: DataTypes.ENUM('pending', 'completed', 'refunded'),
+  //   allowNull: true
+  // },
+  // notes: {
+  //   type: DataTypes.TEXT, 
+  //   allowNull: true
+  // },
+  // check_in_time: {
+  //   type: DataTypes.DATE, 
+  //   allowNull: true
+  // }
 }, {
   tableName: 'registrations', 
   timestamps: false, 
