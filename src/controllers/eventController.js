@@ -46,6 +46,12 @@ const eventController = {
 
   async getEventById(req, res) {
     try {
+      const eventId = sanitizeInput(req.params.id);
+
+      // validate eventId to ensure it's a valid number
+      if (isNaN(eventId)) {
+        return res.status(400).json({ message: 'Invalid event ID' });
+      }
       const event = await Event.findByPk(req.params.id, {
         // include: [{
         //   model: User,
@@ -65,6 +71,15 @@ const eventController = {
 
   async updateEvent(req, res) {
     try {
+      const eventId = sanitizeInput(req.params.id);
+      const updateData = req.body;
+      if (updateData.name) updateData.name = sanitizeInput(updateData.name);
+      if (updateData.description) updateData.description = sanitizeInput(updateData.description);
+
+      // validate eventId and update data
+      if (isNaN(eventId)) {
+        return res.status(400).json({ message: 'Invalid event ID' });
+      }
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
@@ -79,6 +94,10 @@ const eventController = {
 
   async deleteEvent(req, res) {
     try {
+      const eventId = sanitizeInput(req.params.id);
+      if (isNaN(eventId)) {
+        return res.status(400).json({ message: 'Invalid event ID' });
+      }
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
