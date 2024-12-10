@@ -1,5 +1,6 @@
 const { DataTypes } = require('sequelize');
-const sequelize = require('../config/db');  
+const sequelize = require('../config/db');
+const bcrypt = require("bcryptjs");
 
 const User = sequelize.define('User', {
   id: {
@@ -28,42 +29,6 @@ const User = sequelize.define('User', {
     type: DataTypes.ENUM('organizer', 'attendee'),
     allowNull: false,
   },
-  first_name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  last_name: {
-    type: DataTypes.STRING,
-    allowNull: false,
-  },
-  nickname: {
-    type: DataTypes.STRING,
-    defaultValue: 'none',
-  },
-  zipcode: {
-    type: DataTypes.STRING,
-    defaultValue: '000000',
-  },
-  is_active: {
-    type: DataTypes.BOOLEAN,
-    defaultValue: true,
-  },
-  last_login: {
-    type: DataTypes.DATE,
-    allowNull: true,
-  },
-  profile_picture_url: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  phone_number: {
-    type: DataTypes.STRING,
-    allowNull: true,
-  },
-  bio: {
-    type: DataTypes.TEXT,
-    allowNull: true,
-  },
   created_date: {
     type: DataTypes.DATE,
     defaultValue: DataTypes.NOW,
@@ -81,6 +46,10 @@ const User = sequelize.define('User', {
     beforeUpdate: (user, options) => {
       user.modified_date = new Date();
     },
+    beforeCreate: async (user, options) => {
+      const salt = await bcrypt.genSalt();
+      user.password = await bcrypt.hash(user.password, salt);
+    } 
   }
 });
 
