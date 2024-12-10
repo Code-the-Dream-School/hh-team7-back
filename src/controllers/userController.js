@@ -178,7 +178,12 @@ async function updateUser(req, res) {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    await user.update(req.body);
+    const sanitizedData = {
+      name: sanitizeInput(req.body.name),
+      email: sanitizeInput(req.body.email),
+      role: sanitizeInput(req.body.role),
+    };
+    await user.update(sanitizedData);
     res.status(200).json(user);
   } catch (error) {
     console.error('Error updating user:', error);

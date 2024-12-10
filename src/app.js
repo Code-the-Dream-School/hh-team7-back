@@ -17,7 +17,8 @@ const xss = require('xss-clean')
 const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
 
 dotenv.config();
-//const mainRouter = require('./routes/mainRouter.js');
+
+const mainRouter = require('./routes/mainRouter.js');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
