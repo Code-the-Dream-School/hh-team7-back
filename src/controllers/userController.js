@@ -8,10 +8,11 @@ async function register(req, res) {
     // await User.sync({ force: true });
     const user = await User.create(req.body);
     const token = await createJWT(user);
+    const expiresInDays = parseInt(process.env.AUTH_COOKIE_EXPIRES, 10);
     res.cookie(process.env.AUTH_COOKIES_NAME, token, {
        encode: String,
        expires: new Date(
-          Date.now() + process.env.AUTH_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+          Date.now() + expiresInDays * 24 * 60 * 60 * 1000
        ),
        httpOnly: true,
        sameSite: 'None',
