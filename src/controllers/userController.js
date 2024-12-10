@@ -1,7 +1,7 @@
 const { User } = require('../models');
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
-
+const bcrypt = require("bcryptjs");
 
 async function register(req, res) {
   try {
@@ -27,6 +27,55 @@ async function register(req, res) {
     res.status(500).json({ message: 'Error creating user', error: error.message });
   }
 }
+
+async function login(req, res) {
+  const { email, password } = req.body;
+  try {
+    const user = await User.findOne({ where: { email: email } });
+    if (user == null) {
+      res.status(404).json({ message: "User not found" });
+      return;
+    }
+    const passwordMatch = await bcrypt.compare(password, user.password);
+    if (!passwordMatch) {
+      res.status(404).json({ message: "Password does not match" });
+      return;
+    }
+    const token = await createJWT(user);
+    res.cookie(process.env.AUTH_COOKIES_NAME, token, {
+      encode: String,
+      expires: new Date(
+        Date.now() + process.env.AUTH_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+      ),
+      httpOnly: true,
+      sameSite: "None",
+      path: "/",
+      secure: true,
+      signed: false,
+    });
+    res.status(200).json({
+      message: `${user.name} successfully logged in`,
+    });
+  } catch (error) {
+    console.error('Error logging in user:', error);
+    res
+      .status(500)
+      .json({ message: "Error logging in user", error: error.message });
+  }
+}
+
+const logout = async (req, res) => {
+  try {
+    res.clearCookie(process.env.AUTH_COOKIES_NAME);
+    res.status(200).json({
+      message: "Successfully logged out ",
+    });
+  } catch (error) {
+    res
+      .status(500)
+      .json({ message: "Error logging out", error: error.message });
+  }
+};
 
 // get all users
 async function getUsers(req, res) {
@@ -102,4 +151,4 @@ async function createJWT (user) {
      );
   });
 };
-module.exports = { register, getUsers, getUserById, updateUser, deleteUser };
+module.exports = { register, login, logout, getUsers, getUserById, updateUser, deleteUser };
