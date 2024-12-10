@@ -2,11 +2,63 @@ const { User } = require('../models');
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
+const validator = require("validator");
+const xss = require("xss");
+
+// Function to sanitize and escape user input
+const sanitizeInput = (input) => {
+  if (typeof input === 'string') {
+    return validator.escape(xss(input)); // Escape and sanitize input
+  }
+  return input;
+};
+
+// Helper function to validate email format
+const validateEmail = (email) => {
+  const emailRegex = /^[a-zA-Z0-9._-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+  return emailRegex.test(email);
+};
+
+// Helper function to validate password format
+const validatePassword = (password) => {
+  const passwordRegex = /^(?=.*[A-Za-z])(?=.*\d)(?=.*[@$!%*?&])[A-Za-z\d@$!%*?&]{6,}$/;
+  return passwordRegex.test(password);
+};
 
 async function register(req, res) {
   try {
+    let { name, email, password, role } = req.body;
+    name = sanitizeInput(name);
+    email = sanitizeInput(email);
+    password = sanitizeInput(password);
+    role = sanitizeInput(role);
+
+    // Validate email and password
+    if (!validateEmail(email)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    if (!validatePassword(password)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 6 characters long, include a number and a special character.",
+      });
+    }
+
+    // Check if user already exists
+    const existingUser = await User.findOne({ where: { email: email } });
+    if (existingUser) {
+      return res.status(400).json({ message: "Email is already taken" });
+    }
+
+    // Create the user
+    const user = await User.create({
+      name,
+      email,
+      password,
+      role,
+    });
     // await User.sync({ force: true });
-    const user = await User.create(req.body);
     const token = await createJWT(user);
     const expiresInDays = parseInt(process.env.AUTH_COOKIE_EXPIRES, 10);
     res.cookie(process.env.AUTH_COOKIES_NAME, token, {
@@ -32,6 +84,21 @@ async function register(req, res) {
 async function login(req, res) {
   const { email, password } = req.body;
   try {
+    // Sanitize inputs before processing
+    const sanitizedEmail = sanitizeInput(email);
+    const sanitizedPassword = sanitizeInput(password);
+
+    // Validate email and password
+    if (!validateEmail(sanitizedEmail)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    if (!validatePassword(sanitizedPassword)) {
+      return res.status(400).json({
+        message:
+          "Password must be at least 6 characters long, include a number and a special character.",
+      });
+    }
     const user = await User.findOne({ where: { email: email } });
     if (user == null) {
       res.status(404).json({ message: "User not found" });
