@@ -33,7 +33,7 @@ async function register(req, res) {
     password = sanitizeInput(password);
     role = sanitizeInput(role);
 
-    // Validate email and password
+    // validate email and password
     if (!validateEmail(email)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
@@ -45,13 +45,12 @@ async function register(req, res) {
       });
     }
 
-    // Check if user already exists
+    // check if user already exists
     const existingUser = await User.findOne({ where: { email: email } });
     if (existingUser) {
       return res.status(400).json({ message: "Email is already taken" });
     }
 
-    // Create the user
     const user = await User.create({
       name,
       email,
@@ -84,11 +83,11 @@ async function register(req, res) {
 async function login(req, res) {
   const { email, password } = req.body;
   try {
-    // Sanitize inputs before processing
+    // sanitize inputs
     const sanitizedEmail = sanitizeInput(email);
     const sanitizedPassword = sanitizeInput(password);
 
-    // Validate email and password
+    // validate email and password
     if (!validateEmail(sanitizedEmail)) {
       return res.status(400).json({ message: "Invalid email format" });
     }
