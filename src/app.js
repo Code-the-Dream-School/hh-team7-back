@@ -23,7 +23,7 @@ const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 
-// authmiddleware
+// error handler + auth middleware
 const authMiddleware = require('./middleware/authentication');
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
@@ -60,14 +60,14 @@ app.get('/', (req, res) => {
     `);
   });
   
-  // swagger docs
+// swagger docs
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // routes
 app.use('/api/v1', mainRouter);
 app.use('/api/v1', userRoutes);
-app.use('/api/v1', eventRoutes);
-app.use('/api/v1', registrationRoutes);
+app.use('/api/v1', authMiddleware, eventRoutes);
+app.use('/api/v1', authMiddleware, registrationRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
