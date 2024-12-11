@@ -16,7 +16,10 @@ const Registration = sequelize.define('Registration', {
       model: 'users', 
       key: 'id'
     },
-    field: 'userid' 
+    field: 'userid',
+    validate: {
+      isInt: true  // Ensure 'userid' is an integer
+    } 
   },
   eventid: {
     type: DataTypes.INTEGER,
@@ -25,7 +28,10 @@ const Registration = sequelize.define('Registration', {
       model: 'events', 
       key: 'id'
     },
-    field: 'eventid' 
+    field: 'eventid',
+    validate: {
+      isInt: true  // Ensure 'eventid' is an integer
+    } 
   },
   registration_date: {
     type: DataTypes.DATE, 
@@ -34,11 +40,17 @@ const Registration = sequelize.define('Registration', {
   status: {
     type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'attended'), 
     defaultValue: 'pending',
-    allowNull: false
+    allowNull: false,
+    validate: {
+      isIn: [['pending', 'confirmed', 'cancelled', 'attended']]  // Ensure status is one of the valid values
+    }
   },
   payment_status: {
     type: DataTypes.ENUM('pending', 'completed', 'refunded'),
-    allowNull: true
+    allowNull: true,
+    validate: {
+      isIn: [['pending', 'completed', 'refunded']]  // Ensure payment_status is one of the valid values
+    }
   },
   notes: {
     type: DataTypes.TEXT, 

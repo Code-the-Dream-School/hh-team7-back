@@ -12,6 +12,10 @@ const User = sequelize.define('User', {
   name: {
     type: DataTypes.STRING,
     allowNull: false,
+    unique: true,  // Ensures the email is unique
+    validate: {
+      len: [3, 50]  // Name should be between 3 and 50 characters
+    }
   },
   email: {
     type: DataTypes.STRING,
@@ -24,10 +28,16 @@ const User = sequelize.define('User', {
   password: {
     type: DataTypes.STRING,
     allowNull: false,
+    validate: {
+      len: [6, 100]  // Password length should be between 6 and 100 characters
+    }
   },
   role: {
     type: DataTypes.ENUM('organizer', 'attendee'),
     allowNull: false,
+    validate: {
+      isIn: [['organizer', 'attendee']]  // Role must be either 'organizer' or 'attendee'
+    }
   },
   created_date: {
     type: DataTypes.DATE,

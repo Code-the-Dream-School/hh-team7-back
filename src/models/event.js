@@ -11,20 +11,38 @@ const Event = sequelize.define('Event', {
   },
   name: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    validate: {
+      len: [3, 100]  // Event name must be between 3 and 100 characters
+    }
   },
-  description: DataTypes.TEXT,
+  description: {
+    type: DataTypes.TEXT,
+    validate: {
+      len: [0, 1000]  // Description should be between 0 and 1000 characters
+    }
+  },
   date: {
     type: DataTypes.DATE,  
-    allowNull: false
+    allowNull: false,
+    validate: {
+      isDate: true  // Ensures the 'date' field contains a valid date
+    }
   },
   location: {
     type: DataTypes.STRING,
-    allowNull: false
+    allowNull: false,
+    validate: {
+      len: [3, 100]  // Location must be between 3 and 100 characters
+    }
   },
   capacity: {
     type: DataTypes.INTEGER,
-    allowNull: false
+    allowNull: false,
+    validate: {
+      isInt: true,  // Ensures capacity is an integer
+      min: 1        // Capacity must be at least 1
+    }
   },
   status: {
     type: DataTypes.ENUM('draft', 'published', 'cancelled', 'completed'),
@@ -39,8 +57,20 @@ const Event = sequelize.define('Event', {
     defaultValue: 0.00
   },
   registration_deadline: DataTypes.DATE,  
-  min_capacity: DataTypes.INTEGER,
-  max_capacity: DataTypes.INTEGER,
+  min_capacity: {
+    type: DataTypes.INTEGER,
+    validate: {
+      isInt: true,
+      min: 0  // Minimum capacity cannot be negative
+    }
+  },
+  max_capacity: {
+    type: DataTypes.INTEGER,
+    validate: {
+      isInt: true,
+      min: 1  // Maximum capacity must be at least 1
+    }
+  },
   is_private: {
     type: DataTypes.BOOLEAN,
     defaultValue: false

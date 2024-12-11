@@ -1,10 +1,25 @@
 const { Registration, User, Event } = require('../models');
 const sequelize = require('../config/db');
+const xss = require('xss');
+
+//sanitize inputs
+const sanitizeInput = (input) => {
+  if (typeof input === 'string') {
+    return xss(input); // sanitize string input to remove dangerous characters
+  }
+  return input;
+};
 
 const registrationController = {
   async createRegistration(req, res) {
     try {
       const registrationData = req.body;
+
+      // sanitize data from input
+      registrationData.userid = sanitizeInput(registrationData.userid);
+      registrationData.eventid = sanitizeInput(registrationData.eventid);
+      registrationData.status = sanitizeInput(registrationData.status);
+
       const query = `
         INSERT INTO "registrations" ("userid", "eventid", "status", "registration_date")
         VALUES ($1, $2, $3, NOW()) 
@@ -50,6 +65,12 @@ const registrationController = {
 
   async getRegistrationById(req, res) {
     try {
+      const registrationId = sanitizeInput(req.params.id); // sanitize id
+
+      // ensure registrationId it`s a valid number
+      if (isNaN(registrationId)) {
+        return res.status(400).json({ message: 'Invalid registration ID' });
+      }
       const query = `
         SELECT r.*, 
           u.name as user_name, u.email as user_email,
@@ -79,6 +100,13 @@ const registrationController = {
 
   async updateRegistration(req, res) {
     try {
+      const registrationId = sanitizeInput(req.params.id); // sanitize registration id
+      const status = sanitizeInput(req.body.status); // sanitize the status 
+
+      // validate registrationId and status
+      if (isNaN(registrationId) || !status) {
+        return res.status(400).json({ message: 'Invalid registration ID or status' });
+      }
       const query = `
         UPDATE "registrations"
         SET "status" = $1,
@@ -107,6 +135,13 @@ const registrationController = {
 
   async deleteRegistration(req, res) {
     try {
+      const registrationId = sanitizeInput(req.params.id); // sanitize id
+
+      // validate registrationId to ensure it's a valid number
+      if (isNaN(registrationId)) {
+        return res.status(400).json({ message: 'Invalid registration ID' });
+      }
+
       const query = `
         DELETE FROM "registrations"
         WHERE "id" = $1

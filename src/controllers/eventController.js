@@ -1,9 +1,24 @@
 const { Event, User } = require('../models');
+const xss = require('xss');
+
+const sanitizeInput = (input) => {
+  if (typeof input === 'string') {
+    return xss(input); // sanitize string input to remove potentially dangerous characters
+  }
+  return input;
+};
 
 const eventController = {
   async createEvent(req, res) {
     try {
-      const eventData = req.body;
+      let eventData = req.body;
+      eventData.name = sanitizeInput(eventData.name);
+      eventData.description = sanitizeInput(eventData.description);
+
+      if (!eventData.name || !eventData.date) {
+        return res.status(400).json({ message: 'Event name and date are required.' });
+      }
+      
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
@@ -31,6 +46,12 @@ const eventController = {
 
   async getEventById(req, res) {
     try {
+      const eventId = sanitizeInput(req.params.id);
+
+      // validate eventId to ensure it's a valid number
+      if (isNaN(eventId)) {
+        return res.status(400).json({ message: 'Invalid event ID' });
+      }
       const event = await Event.findByPk(req.params.id, {
         // include: [{
         //   model: User,
@@ -50,6 +71,15 @@ const eventController = {
 
   async updateEvent(req, res) {
     try {
+      const eventId = sanitizeInput(req.params.id);
+      const updateData = req.body;
+      if (updateData.name) updateData.name = sanitizeInput(updateData.name);
+      if (updateData.description) updateData.description = sanitizeInput(updateData.description);
+
+      // validate eventId and update data
+      if (isNaN(eventId)) {
+        return res.status(400).json({ message: 'Invalid event ID' });
+      }
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
@@ -64,6 +94,10 @@ const eventController = {
 
   async deleteEvent(req, res) {
     try {
+      const eventId = sanitizeInput(req.params.id);
+      if (isNaN(eventId)) {
+        return res.status(400).json({ message: 'Invalid event ID' });
+      }
       const event = await Event.findByPk(req.params.id);
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
