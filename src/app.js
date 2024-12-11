@@ -8,14 +8,35 @@ const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const path = require('path');
+//security imports
+const helmet = require('helmet');
+const rateLimit = require('express-rate-limit');
+const cookieParser = require('cookie-parser');
+const xss = require('xss-clean')
 
 const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
 
 dotenv.config();
-//const mainRouter = require('./routes/mainRouter.js');
+
+const mainRouter = require('./routes/mainRouter.js');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
+
+// rate limiting configuration
+const limiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: 100, // limit each IP to 100 requests per windowMs
+  message: 'Too many requests from this IP, please try again later.',
+  standardHeaders: true, // return rate limit info in the `RateLimit-*` headers
+  legacyHeaders: false, // disable the `X-RateLimit-*` headers
+});
+
+// apply security middleware
+app.use(helmet());
+app.use(limiter);
+app.use(cookieParser());
+app.use(xss());
 
 // middleware
 app.use(cors());
@@ -38,7 +59,7 @@ app.get('/', (req, res) => {
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // routes
-//app.use('/api/v1', mainRouter);
+app.use('/api/v1', mainRouter);
 app.use('/api/v1', userRoutes);
 app.use('/api/v1', eventRoutes);
 app.use('/api/v1', registrationRoutes);
