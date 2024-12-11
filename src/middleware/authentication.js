@@ -11,7 +11,7 @@ const auth = (req,res,next) =>{
    try {
       const payload = jwt.verify(token,process.env.JWT_Secret)
       //attach the user to the event and registration route
-      req.user = { userId: payload.userId, name: payload.name };
+      req.user = { id: payload.id, name: payload.name };
       next()
    } catch (err) {
       if (err.name === 'TokenExpiredError') {

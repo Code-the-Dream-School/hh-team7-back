@@ -73,6 +73,8 @@ async function register(req, res) {
     });
     res.status(201).json({
        message: "User registered successfully",
+       user: { name: user.name },
+       token
     });
   }catch (error) {
     console.error('Error creating user:', error);
@@ -122,6 +124,8 @@ async function login(req, res) {
     });
     res.status(200).json({
       message: `${user.name} successfully logged in`,
+      user: { name: user.name },
+      token
     });
   } catch (error) {
     console.error('Error logging in user:', error);
@@ -210,7 +214,7 @@ async function createJWT (user) {
   return new Promise((resolve, reject) => {
      jwt.sign(
         {
-           id: user._id, username: user.name
+           id: user.id, username: user.name
         },
         process.env.JWT_SECRET,
         { expiresIn: process.env.JWT_LIFETIME },

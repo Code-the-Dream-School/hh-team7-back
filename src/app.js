@@ -18,7 +18,7 @@ const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
 
 dotenv.config();
 
-const mainRouter = require('./routes/mainRouter.js');
+const mainRouter = require('./routes/mainRouter');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
@@ -65,9 +65,9 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // routes
 app.use('/api/v1', mainRouter);
-app.use('/api/v1', userRoutes);
-app.use('/api/v1', authMiddleware, eventRoutes);
-app.use('/api/v1', authMiddleware, registrationRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/events', authMiddleware, eventRoutes);
+app.use('/api/v1/registrations', authMiddleware, registrationRoutes);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);

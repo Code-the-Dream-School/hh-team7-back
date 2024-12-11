@@ -20,7 +20,7 @@ const eventController = {
       if (!eventData.name || !eventData.date) {
         return res.status(400).json({ message: 'Event name and date are required.' });
       }
-      
+      eventData.organizerID = req.user.id; 
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
@@ -31,8 +31,11 @@ const eventController = {
 
   async getEvents(req, res) {
     try {
+      console.log(req.user)
       const events = await Event.findAll({
-        // where: req.query,
+        where: {
+          organizerid: req.user.id // filter by authenticated user
+        }
         // include: [{
         //   model: User,
         //   as: 'organizer',
@@ -54,12 +57,11 @@ const eventController = {
       if (isNaN(eventId)) {
         return res.status(400).json({ message: 'Invalid event ID' });
       }
-      const event = await Event.findByPk(req.params.id, {
-        // include: [{
-        //   model: User,
-        //   as: 'organizer',
-        //   attributes: ['id', 'name', 'email']
-        // }]
+      const event = await Event.findOne({
+        where: { 
+          id: eventId,
+          organizerid: req.user.id // ensure user owns the event
+        }
       });
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
@@ -82,7 +84,12 @@ const eventController = {
       if (isNaN(eventId)) {
         return res.status(400).json({ message: 'Invalid event ID' });
       }
-      const event = await Event.findByPk(req.params.id);
+      const event = await Event.findOne({
+        where: { 
+          id: eventId,
+          organizerid: req.user.userId // ensure user owns the event
+        }
+      });
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
@@ -100,7 +107,12 @@ const eventController = {
       if (isNaN(eventId)) {
         return res.status(400).json({ message: 'Invalid event ID' });
       }
-      const event = await Event.findByPk(req.params.id);
+      const event = await Event.findOne({
+        where: { 
+          id: eventId,
+          organizerid: req.user.id // Ensure user owns the event
+        }
+      });
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
