@@ -49,9 +49,11 @@ const registrationController = {
         FROM "registrations" r
         LEFT JOIN "users" u ON r."userid" = u."id"
         LEFT JOIN "events" e ON r."eventid" = e."id"
+        WHERE r."userid" = $1
       `;
 
       const [registrations] = await sequelize.query(query, {
+        bind: [req.user.id],
         type: sequelize.QueryTypes.SELECT,
         raw: true
       });
@@ -78,11 +80,11 @@ const registrationController = {
         FROM "registrations" r
         LEFT JOIN "users" u ON r."userid" = u."id"
         LEFT JOIN "events" e ON r."eventid" = e."id"
-        WHERE r."id" = $1
+        WHERE r."id" = $1 AND r."userid" = $2
       `;
 
       const [registration] = await sequelize.query(query, {
-        bind: [req.params.id],
+        bind: [req.params.id, req.user.id],
         type: sequelize.QueryTypes.SELECT,
         raw: true
       });
@@ -109,20 +111,19 @@ const registrationController = {
       }
       const query = `
         UPDATE "registrations"
-        SET "status" = $1,
-            "updated_at" = NOW()
-        WHERE "id" = $2
-        RETURNING "id", "userid", "eventid", "status", "registration_date", "updated_at";
+        SET "status" = $1        
+        WHERE "id" = $2 AND "userid" = $3
+        RETURNING "id", "userid", "eventid", "status", "registration_date";
       `;
 
       const [results] = await sequelize.query(query, {
-        bind: [req.body.status, req.params.id],
+        bind: [req.body.status, req.params.id, req.user.id],
         type: sequelize.QueryTypes.UPDATE,
         raw: true,
         returning: true
       });
 
-      if (!results.length) {
+      if (!results.length || !results) {
         return res.status(404).json({ message: 'Registration not found' });
       }
 
@@ -144,18 +145,18 @@ const registrationController = {
 
       const query = `
         DELETE FROM "registrations"
-        WHERE "id" = $1
+        WHERE "id" = $1 AND "userid" = $2
         RETURNING "id";
       `;
 
       const [results] = await sequelize.query(query, {
-        bind: [req.params.id],
+        bind: [req.params.id, req.user.id],
         type: sequelize.QueryTypes.DELETE,
         raw: true,
         returning: true
       });
-
-      if (!results.length) {
+      console.log(results);
+      if (!results || !results.id) {
         return res.status(404).json({ message: 'Registration not found' });
       }
 
