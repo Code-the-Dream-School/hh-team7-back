@@ -59,7 +59,7 @@ async function register(req, res) {
       role,
     });
     // await User.sync({ force: true });
-    const token = await createJWT(user);
+    const token = await createJWT(user, process.env.JWT_SESION_LIFETIME);
     const expiresInDays = parseInt(process.env.AUTH_COOKIE_EXPIRES, 10);
     res.cookie(process.env.AUTH_COOKIES_NAME, token, {
        encode: String,
@@ -246,18 +246,20 @@ async function passwordResetRequest(req, res) {
         process.env.JWT_PASSWORD_RESET_LIFETIME
       );
 
-      const URL = process.env.CLIENT_FORGOT_PASSWORD_URL + `?token=${token}`;
+      const URL =
+        process.env.FORGOT_PASSWORD_URL_CLIENT +
+        `?${process.env.FORGOT_PASSWORD_URL_TOKEN_PARAMETER_NAME}=${token}`;
 
       sgMail.setApiKey(process.env.SENDGRID_API_KEY);
 
       const msg = {
-        to: user.email, 
-        from: process.env.SENDGRID_SENDER, 
+        to: user.email,
+        from: process.env.SENDGRID_SENDER,
         subject: "Reset Password",
         text: `Click here for reset your password ${URL}`,
         html: `<strong>Click here for reset your password ${URL}</strong>`,
       };
-        await sgMail.send(msg);
+      await sgMail.send(msg);
     }
 
     res.status(200).json({
@@ -265,4 +267,56 @@ async function passwordResetRequest(req, res) {
     });
   } catch (error) {}
 }
-module.exports = { register, login, logout, passwordResetRequest, getUsers, getUserById, updateUser, deleteUser };
+
+async function validateTokens(resetToken, sessionToken) {
+  try {
+    const resetPayload = jwt.verify(resetToken, process.env.JWT_SECRET);
+    const sessionPayload = jwt.verify(sessionToken, process.env.JWT_SECRET);
+
+    if (resetPayload.id !== sessionPayload.id) {
+      throw new Error("Tokens do not belong to the same user");
+    }
+
+    return resetPayload;
+  } catch (error) {
+    if (
+      error.name === "TokenExpiredError" ||
+      error.name === "JsonWebTokenError"
+    ) {
+      throw new Error("Invalid or expired token");
+    }
+    throw error;
+  }
+}
+
+async function passwordResetVerify(req, res, next) {
+  try {
+    const {
+      query: {
+        [process.env.FORGOT_PASSWORD_URL_TOKEN_PARAMETER_NAME]: resetToken,
+      },
+      cookies: { [process.env.AUTH_COOKIES_NAME]: sessionToken },
+    } = req;
+
+    if (!resetToken) {
+      return res.status(400).json({ message: "Missing password reset token" });
+    }
+    if (!sessionToken) {
+      return res.status(401).json({ message: "Missing session token" });
+    }
+
+    await validateTokens(resetToken, sessionToken);
+
+    res.status(200).json({ message: "Token successfully validated" });
+  } catch (error) {
+    if (error.message === "Invalid or expired token") {
+      return res.status(401).json({ message: error.message });
+    }
+    if (error.message === "Tokens do not belong to the same user") {
+      return res.status(401).json({ message: error.message });
+    }
+    next(error);
+  }
+}
+
+module.exports = { register, login, logout, passwordResetRequest, passwordResetVerify, getUsers, getUserById, updateUser, deleteUser };
