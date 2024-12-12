@@ -319,4 +319,47 @@ async function passwordResetVerify(req, res, next) {
   }
 }
 
-module.exports = { register, login, logout, passwordResetRequest, passwordResetVerify, getUsers, getUserById, updateUser, deleteUser };
+async function passwordResetUpdate(req, res, next) {
+  try {
+    const { password } = req.body;
+    const {
+      query: {
+        [process.env.FORGOT_PASSWORD_URL_TOKEN_PARAMETER_NAME]: resetToken,
+      },
+      cookies: { [process.env.AUTH_COOKIES_NAME]: sessionToken },
+    } = req;
+
+    if (!resetToken) {
+      return res.status(400).json({ message: "Missing password reset token" });
+    }
+    if (!sessionToken) {
+      return res.status(401).json({ message: "Missing session token" });
+    }
+
+    const resetPayload = await validateTokens(resetToken, sessionToken);
+
+    const sanitizedPassword = sanitizeInput(password);
+    
+    if (!validatePassword(sanitizedPassword)) {
+      return res.status(400).json({
+        message: "Password must be at least 6 characters long, include a number and a special character",
+      });
+    }
+
+    const user = await User.findByPk(resetPayload.id);
+    if (!user) {
+      return res.status(404).json({ message: "User not found" });
+    }
+
+    const salt = await bcrypt.genSalt();
+    const newHashPassword = await bcrypt.hash(sanitizedPassword, salt);
+
+    await user.update({ password: newHashPassword });
+
+    res.status(200).json({ message: "Password updated successfully" });
+  } catch (error) {
+    next(error);
+  }
+}
+
+module.exports = { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, getUserById, updateUser, deleteUser };
