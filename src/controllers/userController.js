@@ -4,6 +4,7 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const xss = require("xss");
+const sgMail = require('@sendgrid/mail')
 
 // Function to sanitize and escape user input
 const sanitizeInput = (input) => {
@@ -108,7 +109,7 @@ async function login(req, res) {
       res.status(404).json({ message: "Password does not match" });
       return;
     }
-    const token = await createJWT(user);
+    const token = await createJWT(user, process.env.JWT_SESION_LIFETIME);
     res.cookie(process.env.AUTH_COOKIES_NAME, token, {
       encode: String,
       expires: new Date(
@@ -206,14 +207,14 @@ async function deleteUser(req, res) {
   }
 }
 
-async function createJWT (user) {
+async function createJWT (user, expirationTime) {
   return new Promise((resolve, reject) => {
      jwt.sign(
         {
            id: user._id, username: user.name
         },
         process.env.JWT_SECRET,
-        { expiresIn: process.env.JWT_LIFETIME },
+        { expiresIn: expirationTime },
         (err, token) => {
            if (err) {
               reject(err);
@@ -223,4 +224,41 @@ async function createJWT (user) {
      );
   });
 };
-module.exports = { register, login, logout, getUsers, getUserById, updateUser, deleteUser };
+
+async function passwordResetRequest(req, res) {
+  const { email } = req.body;
+  try {
+    const sanitizedEmail = sanitizeInput(email);
+
+    if (!validateEmail(sanitizedEmail)) {
+      return res.status(400).json({ message: "Invalid email format" });
+    }
+
+    const user = await User.findOne({ where: { email: sanitizedEmail } });
+
+    if (user) {
+      const token = await createJWT(
+        user,
+        process.env.JWT_PASSWORD_RESET_LIFETIME
+      );
+
+      const URL = process.env.CLIENT_FORGOT_PASSWORD_URL + `?token=${token}`;
+
+      sgMail.setApiKey(process.env.SENDGRID_API_KEY);
+
+      const msg = {
+        to: user.email, 
+        from: process.env.SENDGRID_SENDER, 
+        subject: "Reset Password",
+        text: `Click here for reset your password ${URL}`,
+        html: `<strong>Click here for reset your password ${URL}</strong>`,
+      };
+        await sgMail.send(msg);
+    }
+
+    res.status(200).json({
+      message: `Email sent to ${email}`,
+    });
+  } catch (error) {}
+}
+module.exports = { register, login, logout, passwordResetRequest, getUsers, getUserById, updateUser, deleteUser };
