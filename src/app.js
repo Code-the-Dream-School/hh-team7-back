@@ -18,10 +18,15 @@ const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
 
 dotenv.config();
 
-const mainRouter = require('./routes/mainRouter.js');
+const mainRouter = require('./routes/mainRouter');
 const userRoutes = require('./routes/userRoutes');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
+
+// error handler + auth middleware
+const authMiddleware = require('./middleware/authentication');
+const notFoundMiddleware = require('./middleware/not-found');
+const errorHandlerMiddleware = require('./middleware/error-handler');
 
 // rate limiting configuration
 const limiter = rateLimit({
@@ -55,13 +60,16 @@ app.get('/', (req, res) => {
     `);
   });
   
-  // swagger docs
+// swagger docs
 app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 
 // routes
 app.use('/api/v1', mainRouter);
-app.use('/api/v1', userRoutes);
-app.use('/api/v1', eventRoutes);
-app.use('/api/v1', registrationRoutes);
+app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/events', authMiddleware, eventRoutes);
+app.use('/api/v1/registrations', authMiddleware, registrationRoutes);
+
+app.use(notFoundMiddleware);
+app.use(errorHandlerMiddleware);
 
 module.exports = app;
