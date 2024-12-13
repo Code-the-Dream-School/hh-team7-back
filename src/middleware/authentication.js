@@ -1,13 +1,18 @@
 const jwt = require('jsonwebtoken')
-const {UnauthenticatedError} = require('../errors')
+const {UnauthenticatedError, CustomAPIError} = require('../errors')
+require("dotenv").config();
+const { StatusCodes } = require('http-status-codes')
 
 const auth = (req,res,next) =>{
-   //check header
-   const authHeader = req.headers.authorization
-   if (!authHeader || !authHeader.startsWith('Bearer')){
-       throw new UnauthenticatedError('Authentification invalid')
-   }
-   const token = authHeader.split(' ')[1]
+   // Get token from cookie
+   const token = req.cookies[process.env.AUTH_COOKIES_NAME];
+
+   if (!token) {
+    throw new CustomAPIError(
+        "No token provided, authorization denied", 
+        StatusCodes.UNAUTHORIZED
+    );
+  }
    try {
       const payload = jwt.verify(token,process.env.JWT_Secret)
       //attach the user to the event and registration route
