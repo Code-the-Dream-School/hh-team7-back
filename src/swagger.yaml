@@ -177,6 +177,100 @@ paths:
           headers: {}
           content: {}
       deprecated: false
+  /users/password-reset/request:
+    post:
+      tags:
+      - User
+      summary: Reset password request
+      description: ''
+      operationId: Resetpasswordrequest
+      parameters: []
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                email: test@test.com
+            example:
+              email: test@test.com
+        required: true
+      responses:
+        '201':
+          description: User created successfully
+          headers: {}
+          content: {}
+      deprecated: false
+      security: []
+  /users/password-reset/verify:
+    post:
+      tags:
+      - User
+      summary: Reset password verify
+      description: ''
+      operationId: Resetpasswordverify
+      parameters:
+      - name: Content-Type
+        in: header
+        description: ''
+        required: true
+        style: simple
+        schema:
+          enum:
+          - application/json
+          type: string
+      - name: auth
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTksInVzZXJuYW1lIjoiZW1haWwgdGVzdCIsImlhdCI6MTczNDA0OTAzNiwiZXhwIjoxNzM0MDQ5NjM2fQ.3g6kFdfr65FGgkaMpcYaHXBysKINiSP-IHO0uiEWzWU
+      responses:
+        '201':
+          description: User created successfully
+          headers: {}
+          content: {}
+      deprecated: false
+      security: []
+  /users/password-reset/update:
+    post:
+      tags:
+      - User
+      summary: Reset password update
+      description: ''
+      operationId: Resetpasswordupdate
+      parameters:
+      - name: auth
+        in: query
+        description: ''
+        required: true
+        style: form
+        explode: true
+        schema:
+          type: string
+          example: eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpZCI6MTksInVzZXJuYW1lIjoiZW1haWwgdGVzdCIsImlhdCI6MTczNDA0OTAzNiwiZXhwIjoxNzM0MDQ5NjM2fQ.3g6kFdfr65FGgkaMpcYaHXBysKINiSP-IHO0uiEWzWU
+      requestBody:
+        description: ''
+        content:
+          application/json:
+            schema:
+              type: object
+              example:
+                password: abc123!
+            example:
+              password: abc123!
+        required: true
+      responses:
+        '201':
+          description: User created successfully
+          headers: {}
+          content: {}
+      deprecated: false
+      security: []
   /events:
     post:
       summary: Create a new event
