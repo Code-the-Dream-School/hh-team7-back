@@ -268,53 +268,21 @@ async function passwordResetRequest(req, res) {
   } catch (error) {}
 }
 
-async function validateTokens(resetToken, sessionToken) {
-  try {
-    const resetPayload = jwt.verify(resetToken, process.env.JWT_SECRET);
-    const sessionPayload = jwt.verify(sessionToken, process.env.JWT_SECRET);
-
-    if (resetPayload.id !== sessionPayload.id) {
-      throw new Error("Tokens do not belong to the same user");
-    }
-
-    return resetPayload;
-  } catch (error) {
-    if (
-      error.name === "TokenExpiredError" ||
-      error.name === "JsonWebTokenError"
-    ) {
-      throw new Error("Invalid or expired token");
-    }
-    throw error;
-  }
-}
-
 async function passwordResetVerify(req, res, next) {
   try {
     const {
       query: {
         [process.env.FORGOT_PASSWORD_URL_TOKEN_PARAMETER_NAME]: resetToken,
       },
-      cookies: { [process.env.AUTH_COOKIES_NAME]: sessionToken },
     } = req;
 
     if (!resetToken) {
       return res.status(400).json({ message: "Missing password reset token" });
     }
-    if (!sessionToken) {
-      return res.status(401).json({ message: "Missing session token" });
-    }
-
-    await validateTokens(resetToken, sessionToken);
+    jwt.verify(resetToken, process.env.JWT_SECRET);
 
     res.status(200).json({ message: "Token successfully validated" });
   } catch (error) {
-    if (error.message === "Invalid or expired token") {
-      return res.status(401).json({ message: error.message });
-    }
-    if (error.message === "Tokens do not belong to the same user") {
-      return res.status(401).json({ message: error.message });
-    }
     next(error);
   }
 }
@@ -326,18 +294,13 @@ async function passwordResetUpdate(req, res, next) {
       query: {
         [process.env.FORGOT_PASSWORD_URL_TOKEN_PARAMETER_NAME]: resetToken,
       },
-      cookies: { [process.env.AUTH_COOKIES_NAME]: sessionToken },
     } = req;
 
     if (!resetToken) {
       return res.status(400).json({ message: "Missing password reset token" });
     }
-    if (!sessionToken) {
-      return res.status(401).json({ message: "Missing session token" });
-    }
 
-    const resetPayload = await validateTokens(resetToken, sessionToken);
-
+    const resetPayload = jwt.verify(resetToken, process.env.JWT_SECRET);
     const sanitizedPassword = sanitizeInput(password);
     
     if (!validatePassword(sanitizedPassword)) {
