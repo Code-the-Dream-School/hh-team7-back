@@ -1,7 +1,7 @@
 const { DataTypes } = require('sequelize');
 const sequelize = require('../config/db');
 const bcrypt = require("bcryptjs");
-
+const roles = require('../config/roles');
 
 const User = sequelize.define('User', {
   id: {
@@ -34,10 +34,10 @@ const User = sequelize.define('User', {
     }
   },
   role: {
-    type: DataTypes.ENUM('organizer', 'attendee'),
+    type: DataTypes.ENUM(roles.ORGANIZER, roles.ATTENDEE),
     allowNull: false,
     validate: {
-      isIn: [['organizer', 'attendee']]  // Role must be either 'organizer' or 'attendee'
+      isIn: [[roles.ORGANIZER, roles.ATTENDEE]]  // Role must be either 'organizer' or 'attendee'
     }
   },
   created_date: {

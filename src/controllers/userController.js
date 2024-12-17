@@ -215,7 +215,7 @@ async function createJWT (user, expirationTime) {
   return new Promise((resolve, reject) => {
      jwt.sign(
         {
-           id: user.id, username: user.name
+           id: user.id, name: user.name, role: user.role
         },
         process.env.JWT_SECRET,
         { expiresIn: expirationTime },
