@@ -87,7 +87,7 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.userId // ensure user owns the event
+          organizerid: req.user.id // ensure user owns the event
         }
       });
       if (!event) {

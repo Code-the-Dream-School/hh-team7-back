@@ -61,17 +61,18 @@ async function register(req, res) {
     // await User.sync({ force: true });
     const token = await createJWT(user, process.env.JWT_SESION_LIFETIME);
     const expiresInDays = parseInt(process.env.AUTH_COOKIE_EXPIRES, 10);
-    res.cookie(process.env.AUTH_COOKIES_NAME, token, {
-       encode: String,
-       expires: new Date(
-          Date.now() + expiresInDays * 24 * 60 * 60 * 1000
-       ),
-       httpOnly: true,
-       sameSite: 'None',
-       path: "/",
-       secure: true,
-       signed: false,
-    });
+    // res.cookie(process.env.AUTH_COOKIES_NAME, token, {
+    //    encode: String,
+    //    expires: new Date(
+    //       Date.now() + expiresInDays * 24 * 60 * 60 * 1000
+    //    ),
+    //    httpOnly: true,
+    //    sameSite: 'None',
+    //    path: "/",
+    //    secure: true,
+    //    signed: false,
+    // });
+    res.setHeader('Authorization', `Bearer ${token}`);
     res.status(201).json({
        message: "User registered successfully",
        user: { name: user.name },
@@ -112,17 +113,18 @@ async function login(req, res) {
       return;
     }
     const token = await createJWT(user, process.env.JWT_SESION_LIFETIME);
-    res.cookie(process.env.AUTH_COOKIES_NAME, token, {
-      encode: String,
-      expires: new Date(
-        Date.now() + process.env.AUTH_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
-      ),
-      httpOnly: true,
-      sameSite: "None",
-      path: "/",
-      secure: true,
-      signed: false,
-    });
+    // res.cookie(process.env.AUTH_COOKIES_NAME, token, {
+    //   encode: String,
+    //   expires: new Date(
+    //     Date.now() + process.env.AUTH_COOKIE_EXPIRES * 24 * 60 * 60 * 1000
+    //   ),
+    //   httpOnly: true,
+    //   sameSite: "None",
+    //   path: "/",
+    //   secure: true,
+    //   signed: false,
+    // });
+    res.setHeader('Authorization', `Bearer ${token}`);
     res.status(200).json({
       message: `${user.name} successfully logged in`,
       user: { name: user.name },
@@ -138,7 +140,8 @@ async function login(req, res) {
 
 const logout = async (req, res) => {
   try {
-    res.clearCookie(process.env.AUTH_COOKIES_NAME);
+    // res.clearCookie(process.env.AUTH_COOKIES_NAME);
+    res.setHeader('Authorization', '');
     res.status(200).json({
       message: "Successfully logged out ",
     });

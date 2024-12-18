@@ -42,23 +42,13 @@ const registrationController = {
 
   async getRegistrations(req, res) {
     try {
-      const query = `
-        SELECT r.*, 
-          u.name as user_name, u.email as user_email,
-          e.name as event_name, e.date as event_date
-        FROM "registrations" r
-        LEFT JOIN "users" u ON r."userid" = u."id"
-        LEFT JOIN "events" e ON r."eventid" = e."id"
-        WHERE r."userid" = $1
-      `;
-
-      const [registrations] = await sequelize.query(query, {
-        bind: [req.user.id],
-        type: sequelize.QueryTypes.SELECT,
-        raw: true
+      console.log(req.user)
+      const reg = await Registration.findAll({
+        where: {
+          userid: req.user.id 
+        }        
       });
-
-      res.status(200).json(registrations);
+      res.status(200).json(reg);
     } catch (error) {
       console.error('Error fetching registrations:', error);
       res.status(500).json({ message: 'Error fetching registrations', error: error.message });
