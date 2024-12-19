@@ -5,8 +5,8 @@ const { StatusCodes } = require('http-status-codes')
 
 const auth = (req,res,next) =>{
    // Get token from cookie
-   const token = req.cookies[process.env.AUTH_COOKIES_NAME];
-
+   //const token = req.cookies[process.env.AUTH_COOKIES_NAME];
+   const token = req.headers['authorization']?.split(' ')[1];
    if (!token) {
     throw new CustomAPIError(
         "No token provided, authorization denied", 
