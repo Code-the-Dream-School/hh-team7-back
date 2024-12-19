@@ -16,7 +16,7 @@ const registrationController = {
       const registrationData = req.body;
 
       // sanitize data from input
-      registrationData.userid = sanitizeInput(registrationData.userid);
+      registrationData.userid = sanitizeInput(req.user.id); 
       registrationData.eventid = sanitizeInput(registrationData.eventid);
       registrationData.status = sanitizeInput(registrationData.status);
 

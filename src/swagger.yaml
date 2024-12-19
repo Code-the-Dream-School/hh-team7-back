@@ -1,186 +1,147 @@
 openapi: 3.0.0
 info:
   title: Event Management API
+  version: 1.0.0
   description: API for managing events, users, and registrations
-  contact: {}
-  version: '1.0.0'
+
 servers:
-- url: http://localhost:8000/api/v1
-  description: Local development server
-  variables: {}
-paths:
-  /register:
-    post:
-      tags:
-      - User
-      summary: Register a new user
-      description: ''
-      operationId: Registeranewuser
-      parameters: []
-      requestBody:
-        description: ''
-        content:
-          application/json:
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/User'
-              - {}
-        required: true
-      responses:
-        '201':
-          description: User created successfully
-          headers: {}
-          content: {}
-      deprecated: false
-      security: []
-  /users:
-    get:
-      tags:
-      - User
-      summary: Get all users
-      description: ''
-      operationId: Getallusers
-      parameters:
-      - name: role
-        in: query
-        description: ''
-        style: form
-        explode: true
-        schema:
+  - url: http://localhost:8000/api/v1
+    description: Local development server
+
+components:
+  securitySchemes:
+    BearerAuth:
+      type: http
+      scheme: bearer
+      bearerFormat: JWT
+  
+  schemas:
+    User:
+      type: object
+      properties:
+        name:
           type: string
-      responses:
-        '200':
-          description: List of users retrieved successfully
-          headers: {}
-          content: {}
-      deprecated: false
-  /users/{id}:
-    get:
-      tags:
-      - User
-      summary: Get user by ID
-      description: ''
-      operationId: GetuserbyID
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
+          example: "Kate"
+        email:
+          type: string
+          format: email
+          example: "kate@example.com"
+        password:
+          type: string
+          example: "123456!qwertQ"
+        role:
+          type: string
+          enum: [organizer, attendee]
+          example: "organizer"
+      required:
+        - name
+        - email
+        - password
+        - role  
+    
+    Event:
+      type: object
+      properties:
+        name:
+          type: string
+          example: "Tech Conference 2025"
+        description:
+          type: string
+          example: "Annual technology conference 2025"
+        date:
+          type: string
+          format: date-time
+          example: "2025-12-12T09:00:00.000Z"
+        location:
+          type: string
+          example: "Convention Center"
+        capacity:
           type: integer
-          format: int32
-      responses:
-        '200':
-          description: User retrieved successfully
-          headers: {}
-          content: {}
-        '404':
-          description: User not found
-          headers: {}
-          content: {}
-      deprecated: false
-    put:
-      tags:
-      - User
-      summary: Update user
-      description: ''
-      operationId: Updateuser
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
+          example: 500
+        status:
+          type: string
+          enum: [draft, published]
+          example: "draft"
+      required:
+        - name
+        - description
+        - date
+        - location
+        - capacity
+
+    Registration:
+      type: object
+      properties:
+        eventid:
           type: integer
-          format: int32
-      requestBody:
-        description: ''
-        content:
-          application/json:
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/User'
-              - {}
-        required: true
-      responses:
-        '200':
-          description: User updated successfully
-          headers: {}
-          content: {}
-        '404':
-          description: User not found
-          headers: {}
-          content: {}
-      deprecated: false
-    delete:
-      tags:
-      - User
-      summary: Delete user
-      description: ''
-      operationId: Deleteuser
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
-          type: integer
-          format: int32
-      responses:
-        '204':
-          description: User deleted successfully
-          headers: {}
-          content: {}
-        '404':
-          description: User not found
-          headers: {}
-          content: {}
-      deprecated: false
-  /login:
+        status:
+          type: string
+          enum: [pending, confirmed, cancelled]
+
+paths:
+  /users/register:
     post:
       tags:
-      - User
-      summary: User login
-      description: ''
-      operationId: Userlogin
-      parameters: []
+        - Users
+      summary: Register a new user
       requestBody:
-        description: ''
+        required: true
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/User'
-              - {}
-        required: true
+              $ref: '#/components/schemas/User'
       responses:
         '201':
           description: User created successfully
-          headers: {}
-          content: {}
-      deprecated: false
-      security: []
-  /logout:
+        '400':
+          description: Invalid input
+
+  /users/login:
     post:
       tags:
-      - User
+        - Users
+      summary: Login user
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+                  format: email
+                password:
+                  type: string
+      responses:
+        '200':
+          description: Login successful
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  token:
+                    type: string
+  /users/logout:
+    post:
+      tags:
+      - Users
       summary: User logout
       description: ''
       operationId: Userlogout
       parameters: []
       responses:
         '201':
-          description: User created successfully
+          description: User logout successfully
           headers: {}
           content: {}
       deprecated: false
+
   /users/password-reset/request:
     post:
       tags:
-      - User
+      - Users
       summary: Reset password request
       description: ''
       operationId: Resetpasswordrequest
@@ -203,10 +164,11 @@ paths:
           content: {}
       deprecated: false
       security: []
+
   /users/password-reset/verify:
     post:
       tags:
-      - User
+      - Users
       summary: Reset password verify
       description: ''
       operationId: Resetpasswordverify
@@ -236,10 +198,11 @@ paths:
           content: {}
       deprecated: false
       security: []
+
   /users/password-reset/update:
     post:
       tags:
-      - User
+      - Users
       summary: Reset password update
       description: ''
       operationId: Resetpasswordupdate
@@ -271,341 +234,202 @@ paths:
           content: {}
       deprecated: false
       security: []
-  /events:
-    post:
-      summary: Create a new event
-      description: ''
-      operationId: Createanewevent
-      parameters: []
+
+  /users:
+    get:
+      tags:
+        - Users
+      summary: Get all users
+      security: []
+      responses:
+        '200':
+          description: List of users retrieved successfully    
+    
+  /users/{id}:
+    parameters:
+      - name: id
+        in: path
+        required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Users
+      summary: Get user by ID
+      security: []
+      responses:
+        '200':
+          description: User retrieved successfully
+    
+    put:
+      tags:
+        - Users
+      summary: Update user
+      security: []
       requestBody:
-        description: ''
+        required: true
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/Event'
-              - {}
-        required: true
+              $ref: '#/components/schemas/User'
       responses:
-        '201':
-          description: Event created successfully
-          headers: {}
-          content: {}
-      deprecated: false
+        '200':
+          description: User updated successfully
+    
+    delete:
+      tags:
+        - Users
+      summary: Delete user
+      security: []
+      responses:
+        '204':
+          description: User deleted successfully
+
+  /events:
     get:
-      summary: Get all events
-      description: ''
-      operationId: Getallevents
-      parameters:
-      - name: organizerId
-        in: query
-        description: ''
-        style: form
-        explode: true
-        schema:
-          type: integer
-          format: int32
-      - name: status
-        in: query
-        description: ''
-        style: form
-        explode: true
-        schema:
-          type: string
+      tags:
+        - Events
+      summary: Get all events for authenticated user
+      description: Returns events based on the user's role. For organizers, returns their created events. 
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: List of events retrieved successfully
-          headers: {}
-          content: {}
-      deprecated: false
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Event'
+        '401':
+          description: Unauthorized - Invalid or missing token
+    
+    post:
+      tags:
+        - Events
+      summary: Create a new event
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Event'
+      responses:
+        '201':
+          description: Event created successfully
+
   /events/{id}:
-    get:
-      summary: Get event by ID
-      description: ''
-      operationId: GeteventbyID
-      parameters:
+    parameters:
       - name: id
         in: path
-        description: ''
         required: true
-        style: simple
         schema:
           type: integer
-          format: int32
+    get:
+      tags:
+        - Events
+      summary: Get event by ID
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: Event retrieved successfully
-          headers: {}
-          content: {}
-        '404':
-          description: Event not found
-          headers: {}
-          content: {}
-      deprecated: false
+    
     put:
+      tags:
+        - Events
       summary: Update event
-      description: ''
-      operationId: Updateevent
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
-          type: integer
-          format: int32
+      security:
+        - BearerAuth: []
       requestBody:
-        description: ''
+        required: true
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/Event'
-              - {}
-        required: true
+              $ref: '#/components/schemas/Event'
       responses:
         '200':
           description: Event updated successfully
-          headers: {}
-          content: {}
-        '404':
-          description: Event not found
-          headers: {}
-          content: {}
-      deprecated: false
+    
     delete:
+      tags:
+        - Events
       summary: Delete event
-      description: ''
-      operationId: Deleteevent
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
-          type: integer
-          format: int32
+      security:
+        - BearerAuth: []
       responses:
         '204':
           description: Event deleted successfully
-          headers: {}
-          content: {}
-        '404':
-          description: Event not found
-          headers: {}
-          content: {}
-      deprecated: false
+
   /registrations:
-    post:
-      summary: Create a new registration
-      description: ''
-      operationId: Createanewregistration
-      parameters: []
-      requestBody:
-        description: ''
-        content:
-          application/json:
-            schema:
-              allOf:
-              - $ref: '#/components/schemas/Registration'
-              - {}
-        required: true
-      responses:
-        '201':
-          description: Registration created successfully
-          headers: {}
-          content: {}
-      deprecated: false
     get:
+      tags:
+        - Registrations
       summary: Get all registrations
-      description: ''
-      operationId: Getallregistrations
-      parameters:
-      - name: userId
-        in: query
-        description: ''
-        style: form
-        explode: true
-        schema:
-          type: integer
-          format: int32
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: List of registrations retrieved successfully
-          headers: {}
-          content: {}
-      deprecated: false
-  /registrations/{id}:
-    get:
-      summary: Get registration by ID
-      description: ''
-      operationId: GetregistrationbyID
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
-          type: integer
-          format: int32
-      responses:
-        '200':
-          description: Registration retrieved successfully
-          headers: {}
-          content: {}
-        '404':
-          description: Registration not found
-          headers: {}
-          content: {}
-      deprecated: false
-    put:
-      summary: Update registration
-      description: ''
-      operationId: Updateregistration
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
-          type: integer
-          format: int32
+    
+    post:
+      tags:
+        - Registrations
+      summary: Create a new registration
+      security:
+        - BearerAuth: []
       requestBody:
-        description: ''
+        required: true
         content:
           application/json:
             schema:
-              allOf:
-              - $ref: '#/components/schemas/Registration'
-              - {}
+              $ref: '#/components/schemas/Registration'
+      responses:
+        '201':
+          description: Registration created successfully
+
+  /registrations/{id}:
+    parameters:
+      - name: id
+        in: path
         required: true
+        schema:
+          type: integer
+    get:
+      tags:
+        - Registrations
+      summary: Get registration by ID
+      security:
+        - BearerAuth: []
+      responses:
+        '200':
+          description: Registration retrieved successfully
+    
+    put:
+      tags:
+        - Registrations
+      summary: Update registration
+      security:
+        - BearerAuth: []
+      requestBody:
+        required: true
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Registration'
       responses:
         '200':
           description: Registration updated successfully
-          headers: {}
-          content: {}
-        '404':
-          description: Registration not found
-          headers: {}
-          content: {}
-      deprecated: false
+    
     delete:
+      tags:
+        - Registrations
       summary: Delete registration
-      description: ''
-      operationId: Deleteregistration
-      parameters:
-      - name: id
-        in: path
-        description: ''
-        required: true
-        style: simple
-        schema:
-          type: integer
-          format: int32
+      security:
+        - BearerAuth: []
       responses:
         '204':
           description: Registration deleted successfully
-          headers: {}
-          content: {}
-        '404':
-          description: Registration not found
-          headers: {}
-          content: {}
-      deprecated: false
-components:
-  schemas:
-    User:
-      title: User
-      required:
-      - name
-      - email
-      - password
-      - role
-      type: object
-      properties:
-        name:
-          type: string
-        email:
-          type: string
-        password:
-          type: string
-        role:
-          allOf:
-          - $ref: '#/components/schemas/Role'
-          - {}
-    Event:
-      title: Event
-      required:
-      - name
-      - date
-      - organizerid
-      type: object
-      properties:
-        name:
-          type: string
-        description:
-          type: string
-        date:
-          type: string
-          format: date-time
-        location:
-          type: string
-        capacity:
-          type: integer
-          format: int32
-        organizerid:
-          type: integer
-          format: int32
-        price:
-          type: number
-        status:
-          allOf:
-          - $ref: '#/components/schemas/Status'
-          - {}
-    Registration:
-      title: Registration
-      required:
-      - userid
-      - eventid
-      - status
-      type: object
-      properties:
-        userid:
-          type: integer
-          format: int32
-        eventid:
-          type: integer
-          format: int32
-        status:
-          allOf:
-          - $ref: '#/components/schemas/Status1'
-          - {}
-        registration_date:
-          type: string
-          format: date-time
-    Role:
-      title: Role
-      enum:
-      - organizer
-      - attendee
-      type: string
-    Status:
-      title: Status
-      enum:
-      - draft
-      - published
-      type: string
-    Status1:
-      title: Status1
-      enum:
-      - pending
-      - confirmed
-      - cancelled
-      type: string
-tags:
-- name: User
-  description: ''
