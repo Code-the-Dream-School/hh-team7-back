@@ -20,7 +20,7 @@ const eventController = {
       if (!eventData.name || !eventData.date) {
         return res.status(400).json({ message: 'Event name and date are required.' });
       }
-      eventData.organizerID = req.user.id; 
+      eventData.organizerid = req.user.id; 
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
@@ -87,7 +87,7 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.userId // ensure user owns the event
+          organizerid: req.user.id // ensure user owns the event
         }
       });
       if (!event) {
