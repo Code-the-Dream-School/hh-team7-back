@@ -38,18 +38,18 @@ const Registration = sequelize.define('Registration', {
     defaultValue: DataTypes.NOW 
   },
   status: {
-    type: DataTypes.ENUM('pending', 'confirmed', 'cancelled', 'attended'), 
-    defaultValue: 'pending',
+    type: DataTypes.ENUM('Confirmed', 'Cancelled'), 
+    defaultValue: 'Confirmed',
     allowNull: false,
     validate: {
-      isIn: [['pending', 'confirmed', 'cancelled', 'attended']]  // Ensure status is one of the valid values
+      isIn: [['Confirmed', 'Cancelled']]  // Ensure status is one of the valid values
     }
   },
   payment_status: {
-    type: DataTypes.ENUM('pending', 'completed', 'refunded'),
+    type: DataTypes.ENUM('Pending', 'Completed', 'Refunded'),
     allowNull: true,
     validate: {
-      isIn: [['pending', 'completed', 'refunded']]  // Ensure payment_status is one of the valid values
+      isIn: [['Pending', 'Completed', 'Refunded']]  // Ensure payment_status is one of the valid values
     }
   },
   notes: {
