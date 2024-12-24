@@ -20,6 +20,7 @@ dotenv.config();
 
 const mainRouter = require('./routes/mainRouter');
 const userRoutes = require('./routes/userRoutes');
+const publicRouter = require('./routes/publicRouter');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 
@@ -66,6 +67,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // routes
 app.use('/api/v1', mainRouter);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/public-events', publicRouter);
 app.use('/api/v1/events', authMiddleware, eventRoutes);
 app.use('/api/v1/registrations', authMiddleware, registrationRoutes);
 
