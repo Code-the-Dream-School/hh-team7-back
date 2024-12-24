@@ -284,7 +284,42 @@ paths:
       responses:
         '204':
           description: User deleted successfully
-
+  /public-events:
+      get:
+        tags:
+          - Public Events
+        summary: Get all events for non-authenticated user
+        description: |
+          Returns all events that are publicly available to non-authenticated users. 
+          For non-authenticated users, only events that are publicly accessible will be returned. 
+          The events are not filtered by user role and do not require authentication.
+        responses:
+          200:
+            description: A list of all publicly accessible events.
+            content:
+              application/json:
+                schema:
+                  type: array
+                  items:
+                    $ref: '#/components/schemas/Event'
+          500:
+            description: Internal Server Error
+    
+  /public-events/{id}:
+      parameters:
+        - name: id
+          in: path
+          required: true
+          schema:
+            type: integer
+      get:
+        tags:
+          - Public Events
+        summary: Get event by ID
+        responses:
+          '200':
+            description: Event retrieved successfully
+    
   /events:
     get:
       tags:
