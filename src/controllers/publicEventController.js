@@ -13,8 +13,52 @@ const publicEventController = {
   
   async getAllEvents(req, res) {
     try {
-      const events = await Event.findAll({});
-      res.status(StatusCodes.OK).json(events);
+      const { page = 1, limit = 10, search = '', start_date, end_date } = req.query;
+
+      const pageNumber = parseInt(page, 10);
+      const limitNumber = parseInt(limit, 10);
+
+      if (isNaN(pageNumber) || pageNumber < 1) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid page number' });
+      }
+      if (isNaN(limitNumber) || limitNumber < 1) {
+        return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid limit value' });
+      }
+
+      let whereConditions = {};
+
+      if (search) {
+        whereConditions[Op.or] = [
+          { name: { [Op.iLike]: `%${sanitizeInput(search)}%` } },
+          { description: { [Op.iLike]: `%${sanitizeInput(search)}%` } },
+          { location: { [Op.iLike]: `%${sanitizeInput(search)}%` } }
+        ];
+      }
+
+      if (start_date || end_date) {
+        whereConditions.date = {};
+
+        if (start_date) {
+          whereConditions.date[Op.gte] = new Date(start_date); // >=
+        }
+
+        if (end_date) {
+          whereConditions.date[Op.lte] = new Date(end_date); // <=
+        }
+      }
+
+      const events = await Event.findAndCountAll({
+        where: whereConditions,
+        limit: limitNumber,
+        offset: (pageNumber - 1) * limitNumber,
+      });
+
+      res.status(StatusCodes.OK).json({
+        total: events.count,
+        page: pageNumber,
+        limit: limitNumber,
+        events: events.rows,
+      });
     } catch (error) {
       console.error('Error fetching events:', error);
       res.status(StatusCodes.INTERNAL_SERVER_ERROR).json({ message: 'Error fetching events', error: error.message });
