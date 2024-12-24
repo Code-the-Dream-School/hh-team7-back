@@ -1,6 +1,7 @@
 const { Event } = require('../models');
 const xss = require('xss');
 const { StatusCodes } = require("http-status-codes");
+const { Op } = require('sequelize');
 
 const sanitizeInput = (input) => {
   if (typeof input === 'string') {

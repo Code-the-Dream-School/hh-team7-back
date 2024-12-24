@@ -293,6 +293,41 @@ paths:
           Returns all events that are publicly available to non-authenticated users. 
           For non-authenticated users, only events that are publicly accessible will be returned. 
           The events are not filtered by user role and do not require authentication.
+        parameters:
+          - in: query
+            name: page
+            required: false
+            schema:
+              type: integer
+              default: 1
+            description: The page number to fetch (default is 1).
+          - in: query
+            name: limit
+            required: false
+            schema:
+              type: integer
+              default: 10
+            description: The number of events to return per page (default is 10).
+          - in: query
+            name: search
+            required: false
+            schema:
+              type: string
+            description: A search term to filter events by name, description, or location (case-insensitive).
+          - in: query
+            name: start_date
+            required: false
+            schema:
+              type: string
+              format: date
+            description: Filter events that start on or after this date.
+          - in: query
+            name: end_date
+            required: false
+            schema:
+              type: string
+              format: date
+            description: Filter events that end on or before this date.
         responses:
           200:
             description: A list of all publicly accessible events.
