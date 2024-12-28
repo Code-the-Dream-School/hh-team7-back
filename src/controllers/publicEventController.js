@@ -26,7 +26,9 @@ const publicEventController = {
         return res.status(StatusCodes.BAD_REQUEST).json({ message: 'Invalid limit value' });
       }
 
-      let whereConditions = {};
+      let whereConditions = {
+        is_private: false  
+      };
 
       if (search) {
         whereConditions[Op.or] = [
@@ -76,7 +78,8 @@ const publicEventController = {
       }
       const event = await Event.findOne({
         where: { 
-          id: eventId
+          id: eventId,
+          is_private: false
         }
       });
       if (!event) {
