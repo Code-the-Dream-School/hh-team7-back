@@ -62,6 +62,9 @@ components:
           type: string
           enum: [draft, published]
           example: "draft"
+        event_banner_url:
+          type: string
+          example: "/uploads/event-image-123.jpg"
       required:
         - name
         - description
@@ -378,7 +381,7 @@ paths:
     post:
       tags:
         - Events
-      summary: Create a new event
+      summary: Create a new event with image
       security:
         - BearerAuth: []
       requestBody:
