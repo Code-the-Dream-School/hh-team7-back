@@ -2,6 +2,8 @@ const { Event, User } = require('../models');
 const xss = require('xss');
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
+const path = require('path');
+const fs = require('fs').promises;
 
 const sanitizeInput = (input) => {
   if (typeof input === 'string') {
@@ -20,10 +22,17 @@ const eventController = {
       if (!eventData.name || !eventData.date) {
         return res.status(400).json({ message: 'Event name and date are required.' });
       }
+      // Handle image upload
+      if (req.file) {
+        eventData.event_banner_url = `/uploads/${req.file.filename}`;
+      }
       eventData.organizerid = req.user.id; 
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
+      if (req.file) {
+        await fs.unlink(req.file.path).catch(console.error);
+      }
       console.error('Error creating event:', error);
       res.status(500).json({ message: 'Error creating event', error: error.message });
     }
@@ -93,9 +102,22 @@ const eventController = {
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
-      await event.update(req.body);
+      // Handle image update
+      if (req.file) {
+        // Delete old image if it exists
+        if (event.event_banner_url) {
+          const oldImagePath = path.join(__dirname, '../../public', event.event_banner_url);
+          await fs.unlink(oldImagePath).catch(console.error);
+        }
+        updateData.event_banner_url = `/uploads/${req.file.filename}`;
+      }
+      await event.update(updateData);
       res.status(200).json(event);
     } catch (error) {
+      // Clean up uploaded file if update fails
+      if (req.file) {
+        await fs.unlink(req.file.path).catch(console.error);
+      }
       console.error('Error updating event:', error);
       res.status(500).json({ message: 'Error updating event', error: error.message });
     }
@@ -115,6 +137,11 @@ const eventController = {
       });
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
+      }
+      // Delete associated image if it exists
+      if (event.event_banner_url) {
+        const imagePath = path.join(__dirname, '../../public', event.event_banner_url);
+        await fs.unlink(imagePath).catch(console.error);
       }
       await event.destroy();
       res.status(204).send();

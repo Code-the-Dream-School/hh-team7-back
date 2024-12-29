@@ -1,4 +1,5 @@
 const { StatusCodes } = require('http-status-codes');
+const multer = require('multer');
 
 const errorHandlerMiddleware = (err, req, res, next) => {
   let customError = {
@@ -6,6 +7,12 @@ const errorHandlerMiddleware = (err, req, res, next) => {
     msg: err.message || 'Something went wrong, please try again later',
   };
 
+  if (err instanceof multer.MulterError) {
+    if (err.code === 'LIMIT_FILE_SIZE') {
+      customError.msg = 'Image size too large, max 5MB allowed';
+      customError.statusCode = 400;
+    }
+  }
   if (err.name === 'ValidationError') {
     customError.msg = Object.values(err.errors)
       .map((item) => item.message)
