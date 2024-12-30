@@ -42,6 +42,6 @@ const upload = multer({
   limits: {
     fileSize: MAX_SIZE,
   },
-}).single('eventImage');
+}).single('event_banner_url');
 
 module.exports = upload;

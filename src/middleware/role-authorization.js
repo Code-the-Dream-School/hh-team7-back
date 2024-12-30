@@ -5,6 +5,7 @@ const authorizeRoles = (allowedRoles) => {
     if (!req.user || !allowedRoles.includes(req.user.role)) {
       next({ statusCode: 403, message: "Access denied" });
     }
+    console.log("req.user.role",req.user.role);
     next();
   };
 };
@@ -16,6 +17,7 @@ const verifyRoleInDB = (allowedRoles) => {
       if (!user) {
         next({ statusCode: 404, message: "User not found" });
       }
+      console.log("user.role",user.role);
       if (!allowedRoles.includes(user.role)) {
         next({ statusCode: 403, message: "Access denied" });
       }

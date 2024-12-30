@@ -103,6 +103,7 @@ const eventController = {
         return res.status(404).json({ message: 'Event not found' });
       }
       // Handle image update
+      console.log("event.file",event.file)
       if (req.file) {
         // Delete old image if it exists
         if (event.event_banner_url) {

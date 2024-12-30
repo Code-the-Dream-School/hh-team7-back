@@ -387,9 +387,34 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Event'
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Tech Conference 2025"
+                description:
+                  type: string
+                  example: "Annual technology conference 2025"
+                date:
+                  type: string
+                  format: date-time
+                  example: "2025-12-12T09:00:00.000Z"
+                location:
+                  type: string
+                  example: "Convention Center"
+                capacity:
+                  type: integer
+                  example: 500
+                status:
+                  type: string
+                  enum: [draft, published]
+                  example: "draft"
+                event_banner_url:
+                  type: string
+                  format: binary
+                  description: "The event banner image"
       responses:
         '201':
           description: Event created successfully
@@ -420,9 +445,34 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/Event'
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "Tech Conference 2025"
+                description:
+                  type: string
+                  example: "Annual technology conference 2025"
+                date:
+                  type: string
+                  format: date-time
+                  example: "2025-12-12T09:00:00.000Z"
+                location:
+                  type: string
+                  example: "Convention Center"
+                capacity:
+                  type: integer
+                  example: 500
+                status:
+                  type: string
+                  enum: [draft, published]
+                  example: "draft"
+                event_banner_url:
+                  type: string
+                  format: binary
+                  description: "The event banner image"
       responses:
         '200':
           description: Event updated successfully
