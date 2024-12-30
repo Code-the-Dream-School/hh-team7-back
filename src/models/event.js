@@ -78,6 +78,7 @@ const Event = sequelize.define(
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
+    event_banner_url: DataTypes.STRING,
     organizerid: {
       type: DataTypes.INTEGER,
       allowNull: false,
