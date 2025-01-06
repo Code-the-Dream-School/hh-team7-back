@@ -45,12 +45,12 @@ const Event = sequelize.define(
       },
     },
     status: {
-      type: DataTypes.ENUM("draft", "published", "cancelled", "completed"),
-      allowNull: false,
+      type: DataTypes.ENUM('Draft', 'Published', 'Canceled', 'Completed'),
+      defaultValue: 'Draft'
     },
     eventType: {
-      type: DataTypes.ENUM("in-person", "virtual", "hybrid"),
-      allowNull: false,
+      type: DataTypes.ENUM('In-person', 'Virtual', 'Hybrid'),
+      defaultValue: 'In-person'
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),

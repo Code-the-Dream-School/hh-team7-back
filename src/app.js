@@ -8,6 +8,7 @@ const bodyParser = require('body-parser');
 const swaggerUi = require('swagger-ui-express');
 const YAML = require('yamljs');
 const path = require('path');
+const fs = require('fs'); 
 //security imports
 const helmet = require('helmet');
 const rateLimit = require('express-rate-limit');
@@ -18,8 +19,14 @@ const swaggerDocument = YAML.load(path.join(__dirname, 'swagger.yaml'));
 
 dotenv.config();
 
+const uploadsDir = path.join(__dirname, 'public/uploads');
+if (!fs.existsSync(uploadsDir)){
+    fs.mkdirSync(uploadsDir, { recursive: true });
+}
+
 const mainRouter = require('./routes/mainRouter');
 const userRoutes = require('./routes/userRoutes');
+const publicRouter = require('./routes/publicRouter');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
 
@@ -38,7 +45,9 @@ const limiter = rateLimit({
 });
 
 // apply security middleware
-app.use(helmet());
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" } 
+}));
 app.use(limiter);
 app.use(cookieParser());
 app.use(xss());
@@ -47,8 +56,9 @@ app.use(xss());
 app.use(cors());
 app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
-app.use(logger('dev'));
+app.use(logger('dev'));   
 app.use(express.static('public'))
+app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(bodyParser.json()); 
 
@@ -66,6 +76,7 @@ app.use('/docs', swaggerUi.serve, swaggerUi.setup(swaggerDocument));
 // routes
 app.use('/api/v1', mainRouter);
 app.use('/api/v1/users', userRoutes);
+app.use('/api/v1/public-events', publicRouter);
 app.use('/api/v1/events', authMiddleware, eventRoutes);
 app.use('/api/v1/registrations', authMiddleware, registrationRoutes);
 
