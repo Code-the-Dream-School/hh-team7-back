@@ -317,10 +317,7 @@ async function passwordResetUpdate(req, res, next) {
       return res.status(404).json({ message: "User not found" });
     }
 
-    const salt = await bcrypt.genSalt();
-    const newHashPassword = await bcrypt.hash(sanitizedPassword, salt);
-
-    await user.update({ password: newHashPassword });
+    await user.update({ password: sanitizedPassword });
 
     res.status(200).json({ message: "Password updated successfully" });
   } catch (error) {

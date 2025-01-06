@@ -20,7 +20,9 @@ const eventController = {
       if (!eventData.name || !eventData.date) {
         return res.status(400).json({ message: 'Event name and date are required.' });
       }
-      eventData.organizerid = req.user.id; 
+      console.log(req.user.id);
+      
+      eventData.organizerId = req.user.id; 
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
@@ -34,7 +36,7 @@ const eventController = {
       console.log(req.user)
       const events = await Event.findAll({
         where: {
-          organizerid: req.user.id // filter by authenticated user
+          organizerId: req.user.id // filter by authenticated user
         }
         // include: [{
         //   model: User,
@@ -60,7 +62,7 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.id // ensure user owns the event
+          organizerId: req.user.id // ensure user owns the event
         }
       });
       if (!event) {
@@ -87,7 +89,7 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.id // ensure user owns the event
+          organizerId: req.user.id // ensure user owns the event
         }
       });
       if (!event) {
@@ -110,7 +112,7 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.id // Ensure user owns the event
+          organizerId: req.user.id // Ensure user owns the event
         }
       });
       if (!event) {

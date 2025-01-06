@@ -16,18 +16,18 @@ const registrationController = {
       const registrationData = req.body;
 
       // sanitize data from input
-      registrationData.userid = sanitizeInput(req.user.id); 
-      registrationData.eventid = sanitizeInput(registrationData.eventid);
+      registrationData.userId = sanitizeInput(req.user.id); 
+      registrationData.eventId = sanitizeInput(registrationData.eventId);
       registrationData.status = sanitizeInput(registrationData.status);
 
       const query = `
-        INSERT INTO "registrations" ("userid", "eventid", "status", "registration_date")
+        INSERT INTO "registrations" ("userId", "eventId", "status", "registration_date")
         VALUES ($1, $2, $3, NOW()) 
-        RETURNING "id", "userid", "eventid", "registration_date", "status";
+        RETURNING "id", "userId", "eventId", "registration_date", "status";
       `;
 
       const [results] = await sequelize.query(query, {
-        bind: [registrationData.userid, registrationData.eventid, registrationData.status],
+        bind: [registrationData.userId, registrationData.eventId, registrationData.status],
         type: sequelize.QueryTypes.INSERT,
         raw: true,
         returning: true
@@ -47,9 +47,9 @@ const registrationController = {
           u.name as user_name, u.email as user_email,
           e.name as event_name, e.date as event_date
         FROM "registrations" r
-        LEFT JOIN "users" u ON r."userid" = u."id"
-        LEFT JOIN "events" e ON r."eventid" = e."id"
-        WHERE r."userid" = $1
+        LEFT JOIN "users" u ON r."userId" = u."id"
+        LEFT JOIN "events" e ON r."eventId" = e."id"
+        WHERE r."userId" = $1
       `;
 
       const [registrations] = await sequelize.query(query, {
@@ -78,9 +78,9 @@ const registrationController = {
           u.name as user_name, u.email as user_email,
           e.name as event_name, e.date as event_date
         FROM "registrations" r
-        LEFT JOIN "users" u ON r."userid" = u."id"
-        LEFT JOIN "events" e ON r."eventid" = e."id"
-        WHERE r."id" = $1 AND r."userid" = $2
+        LEFT JOIN "users" u ON r."userId" = u."id"
+        LEFT JOIN "events" e ON r."eventId" = e."id"
+        WHERE r."id" = $1 AND r."userId" = $2
       `;
 
       const [registration] = await sequelize.query(query, {
@@ -112,8 +112,8 @@ const registrationController = {
       const query = `
         UPDATE "registrations"
         SET "status" = $1        
-        WHERE "id" = $2 AND "userid" = $3
-        RETURNING "id", "userid", "eventid", "status", "registration_date";
+        WHERE "id" = $2 AND "userId" = $3
+        RETURNING "id", "userId", "eventId", "status", "registration_date";
       `;
 
       const [results] = await sequelize.query(query, {
@@ -145,7 +145,7 @@ const registrationController = {
 
       const query = `
         DELETE FROM "registrations"
-        WHERE "id" = $1 AND "userid" = $2
+        WHERE "id" = $1 AND "userId" = $2
         RETURNING "id";
       `;
 

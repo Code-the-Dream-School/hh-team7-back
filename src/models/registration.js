@@ -4,7 +4,7 @@ const sequelize = require("../config/db");
 const Registration = sequelize.define(
   "Registration",
   {
-    userid: {
+    userId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -13,7 +13,7 @@ const Registration = sequelize.define(
       },
       primaryKey: true,
     },
-    eventid: {
+    eventId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
@@ -30,7 +30,7 @@ const Registration = sequelize.define(
         isIn: [["pending", "confirmed", "cancelled"]],
       },
     },
-    check_in_time: {
+    checkInTime: {
       type: DataTypes.DATE,
       allowNull: true,
       validate: {

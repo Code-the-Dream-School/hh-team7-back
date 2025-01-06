@@ -48,7 +48,7 @@ const Event = sequelize.define(
       type: DataTypes.ENUM("draft", "published", "cancelled", "completed"),
       allowNull: false,
     },
-    event_type: {
+    eventType: {
       type: DataTypes.ENUM("in-person", "virtual", "hybrid"),
       allowNull: false,
     },
@@ -60,7 +60,7 @@ const Event = sequelize.define(
         min: 0,
       },
     },
-    registration_deadline: {
+    registrationDeadline: {
       type: DataTypes.DATE,
       allowNull: false,
       validate: {
@@ -74,12 +74,12 @@ const Event = sequelize.define(
         },
       },
     },
-    is_private: {
+    isPrivate: {
       type: DataTypes.BOOLEAN,
       defaultValue: false,
     },
-    event_banner_url: DataTypes.STRING,
-    organizerid: {
+    eventBannerUrl: DataTypes.STRING,
+    organizerId: {
       type: DataTypes.INTEGER,
       allowNull: false,
       references: {
