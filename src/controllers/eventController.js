@@ -24,9 +24,9 @@ const eventController = {
       }
       // Handle image upload
       if (req.file) {
-        eventData.event_banner_url = `/uploads/${req.file.filename}`;
+        eventData.eventBannerUrl = `/uploads/${req.file.filename}`;
       }
-      eventData.organizerid = req.user.id; 
+      eventData.organizerId = req.user.id; 
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
@@ -43,7 +43,7 @@ const eventController = {
       console.log(req.user)
       const events = await Event.findAll({
         where: {
-          organizerid: req.user.id // filter by authenticated user
+          organizerId: req.user.id // filter by authenticated user
         }
         // include: [{
         //   model: User,
@@ -69,7 +69,7 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.id // ensure user owns the event
+          organizerId: req.user.id // ensure user owns the event
         }
       });
       if (!event) {
@@ -96,7 +96,7 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.id // ensure user owns the event
+          organizerId: req.user.id // ensure user owns the event
         }
       });
       if (!event) {
@@ -106,11 +106,11 @@ const eventController = {
       console.log("event.file",event.file)
       if (req.file) {
         // Delete old image if it exists
-        if (event.event_banner_url) {
-          const oldImagePath = path.join(__dirname, '../../public', event.event_banner_url);
+        if (event.eventBannerUrl) {
+          const oldImagePath = path.join(__dirname, '../../public', event.eventBannerUrl);
           await fs.unlink(oldImagePath).catch(console.error);
         }
-        updateData.event_banner_url = `/uploads/${req.file.filename}`;
+        updateData.eventBannerUrl = `/uploads/${req.file.filename}`;
       }
       await event.update(updateData);
       res.status(200).json(event);
@@ -133,15 +133,15 @@ const eventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          organizerid: req.user.id // Ensure user owns the event
+          organizerId: req.user.id // Ensure user owns the event
         }
       });
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
       // Delete associated image if it exists
-      if (event.event_banner_url) {
-        const imagePath = path.join(__dirname, '../../public', event.event_banner_url);
+      if (event.eventBannerUrl) {
+        const imagePath = path.join(__dirname, '../../public', event.eventBannerUrl);
         await fs.unlink(imagePath).catch(console.error);
       }
       await event.destroy();

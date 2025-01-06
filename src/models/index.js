@@ -4,14 +4,14 @@ const Event = require('./event');
 const Registration = require('./registration');
 
 // Define associations
-User.hasMany(Event, { foreignKey: 'organizerid' });
-Event.belongsTo(User, { foreignKey: 'organizerid' });
+User.hasMany(Event, { foreignKey: 'organizerId' });
+Event.belongsTo(User, { foreignKey: 'organizerId' });
 
-User.hasMany(Registration, { foreignKey: 'userid' });
-Registration.belongsTo(User, { foreignKey: 'userid' });
+User.hasMany(Registration, { foreignKey: 'userId' });
+Registration.belongsTo(User, { foreignKey: 'userId' });
 
-Event.hasMany(Registration, { foreignKey: 'eventid' });
-Registration.belongsTo(Event, { foreignKey: 'eventid' });
+Event.hasMany(Registration, { foreignKey: 'eventId' });
+Registration.belongsTo(Event, { foreignKey: 'eventId' });
 
 User.belongsToMany(Event, { through: Registration });
 Event.belongsToMany(User, { through: Registration });

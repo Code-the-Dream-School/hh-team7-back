@@ -75,7 +75,7 @@ components:
     Registration:
       type: object
       properties:
-        eventid:
+        eventId:
           type: integer
         status:
           type: string
