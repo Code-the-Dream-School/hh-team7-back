@@ -2,6 +2,7 @@ const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const bcrypt = require("bcryptjs");
 const roles = require("../config/roles");
+const ROLES = require("../config/roles");
 
 const User = sequelize.define(
   "User",
@@ -54,6 +55,12 @@ const User = sequelize.define(
           user.password = await bcrypt.hash(user.password, salt);
         }
       },
+      beforeBulkCreate: async (users, options) => {
+        for (const user of users) {
+          const salt = await bcrypt.genSalt();
+          user.password = await bcrypt.hash(user.password, salt);
+        }
+      },
     },
     indexes: [
       {
@@ -63,5 +70,25 @@ const User = sequelize.define(
     ],
   }
 );
+
+//Creates User test data
+const userBulkCreate = async () => {
+  await sequelize.sync();
+  await User.bulkCreate([
+    {
+      name: "organizer test",
+      email: "alejandro7120@gmail.com",
+      password: "test1234!",
+      role: ROLES.ORGANIZER,
+    },
+    {
+      name: "attendee test",
+      email: "cristian.rosales@unet.edu.ve",
+      password: "test1234!",
+      role: ROLES.ATTENDEE,
+    },
+  ]);
+};
+// userBulkCreate();
 
 module.exports = User;

@@ -94,4 +94,38 @@ const Event = sequelize.define(
   }
 );
 
+//Creates Event test data
+const eventBulkCreate = async () => {
+  await sequelize.sync();
+  await Event.bulkCreate([
+    {
+      organizerId: 1,
+      name: "Event test 1",
+      description: "Test description",
+      date: "01/31/2025",
+      location: "Test Location",
+      capacity: "10",
+      status: "Draft",
+      eventType: "Virtual",
+      price: "10.00",
+      registrationDeadline: "01/31/2025",
+      isPrivate: "false",
+    },
+    {
+      organizerId: 1,
+      name: "Event test 2",
+      description: "Test description",
+      date: "03/31/2025",
+      location: "Test Location",
+      capacity: "10",
+      status: "Published",
+      eventType: "In-person",
+      price: "10.00",
+      registrationDeadline: "03/30/2025",
+      isPrivate: "true",
+    },
+  ]);
+};
+// eventBulkCreate();
+
 module.exports = Event;

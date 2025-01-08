@@ -37,4 +37,10 @@ sequelize.authenticate()
     console.error('Unable to connect to the database:', err);
   });
 
+//Deletes all data and synchronizes models with database tables
+const synchronizeDB = async () => {
+  await sequelize.sync({ force: true });
+};
+// synchronizeDB();
+
 module.exports = sequelize;
