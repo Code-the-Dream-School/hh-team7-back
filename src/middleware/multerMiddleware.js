@@ -4,11 +4,16 @@ const MAX_SIZE = 1024 * 1024 * 5; // 5MB size of image
 
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    const dirPath = path.join(__dirname, '../../public/uploads');
-    cb(null, dirPath);
+    if (req.originalUrl.includes('/users')) {
+      const dirPath = path.join(__dirname, '../../public/uploads/users');
+      cb(null, dirPath);
+    } else {
+      const dirPath = path.join(__dirname, '../../public/uploads');
+      cb(null, dirPath);
+    }
   },
   filename: (req, file, cb) => {
-    const fileName = file.originalname;
+    const fileName = Date.now() + '-' + file.originalname;
     cb(null, fileName);
   },
 });
@@ -42,6 +47,6 @@ const upload = multer({
   limits: {
     fileSize: MAX_SIZE,
   },
-}).single('event_banner_url');
+}).single('file');
 
 module.exports = upload;

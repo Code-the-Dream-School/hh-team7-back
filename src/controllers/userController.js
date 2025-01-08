@@ -191,9 +191,22 @@ async function updateUser(req, res) {
       email: sanitizeInput(req.body.email),
       role: sanitizeInput(req.body.role),
     };
+    // Handle image update
+    if (req.file) {
+      // Delete old image if it exists
+      if (user.profilePictureUrl) {
+        const oldImagePath = path.join(__dirname, '../../public', user.profilePictureUrl);
+        await fs.unlink(oldImagePath).catch(console.error);
+      }
+      updateData.profilePictureUrl = `/uploads/users/${req.file.filename}`;
+    }
     await user.update(sanitizedData);
     res.status(200).json(user);
   } catch (error) {
+    // Clean up uploaded file if update fails
+    if (req.file) {
+      await fs.unlink(req.file.path).catch(console.error);
+    }
     console.error('Error updating user:', error);
     res.status(500).json({ message: 'Error updating user', error: error.message });
   }
