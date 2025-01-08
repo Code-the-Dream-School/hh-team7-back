@@ -24,6 +24,11 @@ if (!fs.existsSync(uploadsDir)){
     fs.mkdirSync(uploadsDir, { recursive: true });
 }
 
+const uploadsUsersDir = path.join(__dirname, 'public/uploads/users');
+if (!fs.existsSync(uploadsUsersDir)){
+    fs.mkdirSync(uploadsUsersDir, { recursive: true });
+}
+
 const mainRouter = require('./routes/mainRouter');
 const userRoutes = require('./routes/userRoutes');
 const publicRouter = require('./routes/publicRouter');
@@ -66,6 +71,7 @@ app.use(express.urlencoded({ extended: false }));
 app.use(logger('dev'));   
 app.use(express.static('public'))
 app.use('/uploads', express.static(path.join(__dirname, 'public/uploads')));
+app.use('/uploads/users', express.static(path.join(__dirname, 'uploads/users')));
 app.use(favicon(__dirname + '/public/favicon.ico'));
 app.use(bodyParser.json()); 
 
