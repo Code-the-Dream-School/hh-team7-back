@@ -134,9 +134,10 @@ Managing user sessions and ensuring security is paramount. The process involves:
     - Description (up to 1000 characters)
     - Date (must be a valid date)
     - Location (between 3 and 100 characters)
+    - Category (string, with default value: 'Technology') 
     - Capacity (must be a positive integer)
-    - Status (with possible values: 'draft', 'published', 'canceled', 'completed')
-    - Event type (can be 'in-person', 'virtual', or 'hybrid')
+    - Status (with possible values: 'Draft', 'Published', 'Canceled', 'Completed')
+    - Event type (can be 'In-person', 'Virtual', or 'Hybrid')
     - Price (decimal value)
     - Registration deadline (optional)
     - Min/Max capacity (min is 0, max is at least 1)
@@ -149,11 +150,9 @@ Managing user sessions and ensuring security is paramount. The process involves:
 - Defines user event registration details, including:
     - User ID (foreign key referencing User model)
     - Event ID (foreign key referencing Event model)
-    - Registration date (automatically set)
-    - Status (values: 'pending', 'confirmed', 'canceled', 'attended')
-    - Payment status (values: 'pending', 'completed', 'refunded')
-    - Notes (optional text field)
+    - Status (values: 'Confirmed', 'Canceled')
     - Check-in time (optional date field)
+- Automatically sets created_date and modified_date.
 
 ## Events Functionality
 

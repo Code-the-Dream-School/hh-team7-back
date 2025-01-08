@@ -55,6 +55,9 @@ components:
         location:
           type: string
           example: "Convention Center"
+        category:
+          type: string
+          example: "Design"
         capacity:
           type: integer
           example: 500
@@ -70,6 +73,7 @@ components:
         - description
         - date
         - location
+        - category
         - capacity
 
     Registration:
@@ -404,6 +408,9 @@ paths:
                 location:
                   type: string
                   example: "Convention Center"
+                category:
+                  type: string
+                  example: "Design"
                 capacity:
                   type: integer
                   example: 500
@@ -462,6 +469,9 @@ paths:
                 location:
                   type: string
                   example: "Convention Center"
+                category:
+                  type: string
+                  example: "Design"
                 capacity:
                   type: integer
                   example: 500
