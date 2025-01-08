@@ -23,11 +23,11 @@ const Registration = sequelize.define(
       primaryKey: true,
     },
     status: {
-      type: DataTypes.ENUM("confirmed", "canceled"),
-      defaultValue: "confirmed",
+      type: DataTypes.ENUM("Confirmed", "Canceled"),
+      defaultValue: "Confirmed",
       allowNull: false,
       validate: {
-        isIn: [["confirmed", "canceled"]],
+        isIn: [["Confirmed", "Canceled"]],
       },
     },
     checkInTime: {
