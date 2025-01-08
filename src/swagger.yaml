@@ -274,14 +274,33 @@ paths:
     put:
       tags:
         - Users
-      summary: Update user
-      security: []
+      summary: Update authenticated user's information
+      description: Allows an authenticated user to update their own profile (name, email, password, etc.)
+      security:
+        - BearerAuth: []  
       requestBody:
         required: true
         content:
           application/json:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                name:
+                  type: string
+                  example: "John Doe"
+                email:
+                  type: string
+                  example: "john.doe@example.com"
+                password:
+                  type: string
+                  example: "newpassword123"
+                profilePictureUrl:
+                  type: string
+                  format: binary
+                  example: "The user profile image"
+              required:
+                - name
+                - email
       responses:
         '200':
           description: User updated successfully
