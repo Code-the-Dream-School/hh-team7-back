@@ -1,7 +1,7 @@
 const express = require("express");
 const router = express.Router();
 const eventController = require("../controllers/eventController");
-const roles = require("../config/roles");
+const { ROLES } = require("../config/enums");
 const {
   authorizeRoles,
   verifyRoleInDB,
@@ -10,32 +10,32 @@ const upload = require('../middleware/multerMiddleware');
 
 router.post(
   "/",
-  authorizeRoles([roles.ORGANIZER]),
-  verifyRoleInDB([roles.ORGANIZER]),
+  authorizeRoles([ROLES.ORGANIZER]),
+  verifyRoleInDB([ROLES.ORGANIZER]),
   upload,
   eventController.createEvent
 );
 router.get(
   "/",
-  authorizeRoles([roles.ORGANIZER, roles.ATTENDEE]),
+  authorizeRoles([ROLES.ORGANIZER, ROLES.ATTENDEE]),
   eventController.getEvents
 );
 router.get(
   "/:id",
-  authorizeRoles([roles.ORGANIZER, roles.ATTENDEE]),
+  authorizeRoles([ROLES.ORGANIZER, ROLES.ATTENDEE]),
   eventController.getEventById
 );
 router.put(
   "/:id",
-  authorizeRoles([roles.ORGANIZER]),
-  verifyRoleInDB([roles.ORGANIZER]),
+  authorizeRoles([ROLES.ORGANIZER]),
+  verifyRoleInDB([ROLES.ORGANIZER]),
   upload,
   eventController.updateEvent
 );
 router.delete(
   "/:id",
-  authorizeRoles([roles.ORGANIZER]),
-  verifyRoleInDB([roles.ORGANIZER]),
+  authorizeRoles([ROLES.ORGANIZER]),
+  verifyRoleInDB([ROLES.ORGANIZER]),
   eventController.deleteEvent
 );
 

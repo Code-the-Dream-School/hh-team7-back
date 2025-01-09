@@ -1,7 +1,7 @@
 const express = require('express');
 const { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, updateUser, getUserById, deleteUser } = require('../controllers/userController');
 const router = express.Router();
-const roles = require("../config/roles");
+const { ROLES } = require("../config/enums");
 const {
   authorizeRoles,
   verifyRoleInDB,
@@ -21,16 +21,16 @@ router.route('/password-reset/update').post(passwordResetUpdate);
 // Admin routes
 router.get(
     '/',
-    authorizeRoles([roles.ADMIN]),
-    verifyRoleInDB([roles.ADMIN]),
+    authorizeRoles([ROLES.ADMIN]),
+    verifyRoleInDB([ROLES.ADMIN]),
     getUsers
   ); 
   
 // user routes - only admins are allowed to get user data.
 router.get(
     '/:id',    
-    authorizeRoles([roles.ADMIN]),
-    verifyRoleInDB([roles.ADMIN]),
+    authorizeRoles([ROLES.ADMIN]),
+    verifyRoleInDB([ROLES.ADMIN]),
     getUserById
   );
   

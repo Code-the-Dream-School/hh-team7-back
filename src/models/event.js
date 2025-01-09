@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const { EVENT_STATUS, EVENT_TYPE } = require("../config/enums");
 
 const Event = sequelize.define(
   "Event",
@@ -53,12 +54,12 @@ const Event = sequelize.define(
       },
     },
     status: {
-      type: DataTypes.ENUM('Draft', 'Published', 'Canceled', 'Completed'),
-      defaultValue: 'Draft'
+      type: DataTypes.ENUM(...Object.values(EVENT_STATUS)),
+      defaultValue: EVENT_STATUS.DRAFT
     },
-    event_type: {
-      type: DataTypes.ENUM('In-person', 'Virtual', 'Hybrid'),
-      defaultValue: 'In-person'
+    eventType: {
+      type: DataTypes.ENUM(...Object.values(EVENT_TYPE)),
+      defaultValue: EVENT_TYPE.IN_PERSON
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),
@@ -101,5 +102,39 @@ const Event = sequelize.define(
     timestamps: true,
   }
 );
+
+//Creates Event test data
+const eventBulkCreate = async () => {
+  await sequelize.sync();
+  await Event.bulkCreate([
+    {
+      organizerId: 1,
+      name: "Event test 1",
+      description: "Test description",
+      date: "01/31/2025",
+      location: "Test Location",
+      capacity: "10",
+      status: "Draft",
+      eventType: "Virtual",
+      price: "10.00",
+      registrationDeadline: "01/31/2025",
+      isPrivate: "false",
+    },
+    {
+      organizerId: 1,
+      name: "Event test 2",
+      description: "Test description",
+      date: "03/31/2025",
+      location: "Test Location",
+      capacity: "10",
+      status: "Published",
+      eventType: "In-person",
+      price: "10.00",
+      registrationDeadline: "03/30/2025",
+      isPrivate: "true",
+    },
+  ]);
+};
+// eventBulkCreate();
 
 module.exports = Event;
