@@ -3,20 +3,14 @@ const User = require('./user');
 const Event = require('./event');
 const Registration = require('./registration');
 
-// Define associations
-User.hasMany(Event, { foreignKey: 'organizerId' });
-Event.belongsTo(User, { foreignKey: 'organizerId' });
-
-User.hasMany(Registration, { foreignKey: 'userId' });
-Registration.belongsTo(User, { foreignKey: 'userId' });
-
-Event.hasMany(Registration, { foreignKey: 'eventId' });
-Registration.belongsTo(Event, { foreignKey: 'eventId' });
-
 User.belongsToMany(Event, { through: Registration });
 Event.belongsToMany(User, { through: Registration });
 
+User.hasMany(Registration);
+Registration.belongsTo(User);
 
+Event.hasMany(Registration);
+Registration.belongsTo(Event);
 
 module.exports = {
   sequelize,

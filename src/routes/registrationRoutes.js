@@ -2,11 +2,11 @@ const express = require('express');
 const router = express.Router();
 const registrationController = require('../controllers/registrationController');
 
-
 router.post('/', registrationController.createRegistration);
 router.get('/', registrationController.getRegistrations);
 router.get('/:id', registrationController.getRegistrationById);
 router.put('/:id', registrationController.updateRegistration);
 router.delete('/:id', registrationController.deleteRegistration);
+router.post('/:id', registrationController.putCheckInTime);
 
 module.exports = router;

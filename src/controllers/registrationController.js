@@ -1,5 +1,4 @@
-const { Registration, User, Event } = require('../models');
-const sequelize = require('../config/db');
+const { Registration, Event } = require('../models');
 const xss = require('xss');
 
 //sanitize inputs
@@ -15,157 +14,129 @@ const registrationController = {
     try {
       const registrationData = req.body;
 
-      // sanitize data from input
-      registrationData.userId = sanitizeInput(req.user.id); 
-      registrationData.eventId = sanitizeInput(registrationData.eventId);
+      registrationData.UserId = sanitizeInput(req.user.id);
+      registrationData.EventId = sanitizeInput(registrationData.EventId);
       registrationData.status = sanitizeInput(registrationData.status);
 
-      const query = `
-        INSERT INTO "registrations" ("userId", "eventId", "status", "registration_date")
-        VALUES ($1, $2, $3, NOW()) 
-        RETURNING "id", "userId", "eventId", "registration_date", "status";
-      `;
+      const registration = await Registration.create(registrationData);
 
-      const [results] = await sequelize.query(query, {
-        bind: [registrationData.userId, registrationData.eventId, registrationData.status],
-        type: sequelize.QueryTypes.INSERT,
-        raw: true,
-        returning: true
-      });
-
-      res.status(201).json(results[0]);
+      res.status(201).json(registration);
     } catch (error) {
-      console.error('Error creating registration:', error);
-      res.status(500).json({ message: 'Error creating registration', error: error.message });
+      console.error("Error creating registration:", error);
+      res
+        .status(500)
+        .json({ message: "Error creating registration", error: error.message });
     }
   },
 
   async getRegistrations(req, res) {
     try {
-      const query = `
-        SELECT r.*, 
-          u.name as user_name, u.email as user_email,
-          e.name as event_name, e.date as event_date
-        FROM "registrations" r
-        LEFT JOIN "users" u ON r."userId" = u."id"
-        LEFT JOIN "events" e ON r."eventId" = e."id"
-        WHERE r."userId" = $1
-      `;
-
-      const [registrations] = await sequelize.query(query, {
-        bind: [req.user.id],
-        type: sequelize.QueryTypes.SELECT,
-        raw: true
+      const registrations = await Registration.findAll({
+        where: { UserId: req.user.id },
       });
 
       res.status(200).json(registrations);
     } catch (error) {
-      console.error('Error fetching registrations:', error);
-      res.status(500).json({ message: 'Error fetching registrations', error: error.message });
+      console.error("Error fetching registrations:", error);
+      res.status(500).json({
+        message: "Error fetching registrations",
+        error: error.message,
+      });
     }
   },
 
   async getRegistrationById(req, res) {
     try {
-      const registrationId = sanitizeInput(req.params.id); // sanitize id
-
-      // ensure registrationId it`s a valid number
+      const registrationId = sanitizeInput(req.params.id);
       if (isNaN(registrationId)) {
-        return res.status(400).json({ message: 'Invalid registration ID' });
+        return res.status(400).json({ message: "Invalid registration ID" });
       }
-      const query = `
-        SELECT r.*, 
-          u.name as user_name, u.email as user_email,
-          e.name as event_name, e.date as event_date
-        FROM "registrations" r
-        LEFT JOIN "users" u ON r."userId" = u."id"
-        LEFT JOIN "events" e ON r."eventId" = e."id"
-        WHERE r."id" = $1 AND r."userId" = $2
-      `;
-
-      const [registration] = await sequelize.query(query, {
-        bind: [req.params.id, req.user.id],
-        type: sequelize.QueryTypes.SELECT,
-        raw: true
-      });
+      const registration = await Registration.findByPk(registrationId);
 
       if (!registration) {
-        return res.status(404).json({ message: 'Registration not found' });
+        return res.status(404).json({ message: "Registration not found" });
       }
 
       res.status(200).json(registration);
     } catch (error) {
-      console.error('Error fetching registration:', error);
-      res.status(500).json({ message: 'Error fetching registration', error: error.message });
+      console.error("Error fetching registration:", error);
+      res
+        .status(500)
+        .json({ message: "Error fetching registration", error: error.message });
     }
   },
 
   async updateRegistration(req, res) {
     try {
-      const registrationId = sanitizeInput(req.params.id); // sanitize registration id
-      const status = sanitizeInput(req.body.status); // sanitize the status 
+      const registrationId = sanitizeInput(req.params.id);
+      const registrationData = { status: "" };
+      registrationData.status = req.body.status;
 
-      // validate registrationId and status
-      if (isNaN(registrationId) || !status) {
-        return res.status(400).json({ message: 'Invalid registration ID or status' });
+      if (isNaN(registrationId)) {
+        return res.status(400).json({ message: "Invalid registration ID" });
       }
-      const query = `
-        UPDATE "registrations"
-        SET "status" = $1        
-        WHERE "id" = $2 AND "userId" = $3
-        RETURNING "id", "userId", "eventId", "status", "registration_date";
-      `;
+      registrationData.status = sanitizeInput(registrationData.status);
 
-      const [results] = await sequelize.query(query, {
-        bind: [req.body.status, req.params.id, req.user.id],
-        type: sequelize.QueryTypes.UPDATE,
-        raw: true,
-        returning: true
-      });
-
-      if (!results.length || !results) {
-        return res.status(404).json({ message: 'Registration not found' });
+      if (!registrationData.status) {
+        return res.status(400).json({ message: "Status is required" });
       }
 
-      res.status(200).json(results[0]);
+      const registration = await Registration.findByPk(registrationId);
+
+      if (!registration) {
+        return res.status(404).json({ message: "Registration not found" });
+      }
+
+      await registration.update(registrationData);
+      res.status(200).json(registration);
     } catch (error) {
-      console.error('Error updating registration:', error);
-      res.status(500).json({ message: 'Error updating registration', error: error.message });
+      console.error("Error updating registration:", error);
+      res
+        .status(500)
+        .json({ message: "Error updating registration", error: error.message });
     }
   },
 
   async deleteRegistration(req, res) {
     try {
-      const registrationId = sanitizeInput(req.params.id); // sanitize id
-
-      // validate registrationId to ensure it's a valid number
-      if (isNaN(registrationId)) {
-        return res.status(400).json({ message: 'Invalid registration ID' });
+      const registrationId = sanitizeInput(req.params.id);
+      const registration = await Registration.findByPk(registrationId);
+      if (!registration) {
+        return res.status(404).json({ message: "Registration not found" });
       }
-
-      const query = `
-        DELETE FROM "registrations"
-        WHERE "id" = $1 AND "userId" = $2
-        RETURNING "id";
-      `;
-
-      const [results] = await sequelize.query(query, {
-        bind: [req.params.id, req.user.id],
-        type: sequelize.QueryTypes.DELETE,
-        raw: true,
-        returning: true
-      });
-      console.log(results);
-      if (!results || !results.id) {
-        return res.status(404).json({ message: 'Registration not found' });
-      }
-
+      await registration.destroy();
       res.status(204).send();
     } catch (error) {
-      console.error('Error deleting registration:', error);
-      res.status(500).json({ message: 'Error deleting registration', error: error.message });
+      console.error("Error deleting registration:", error);
+      res
+        .status(500)
+        .json({ message: "Error deleting registration", error: error.message });
     }
-  }
+  },
+
+  async putCheckInTime(req, res) {
+    try {
+      const registrationId = sanitizeInput(req.params.id);
+
+      if (isNaN(registrationId)) {
+        return res.status(400).json({ message: "Invalid registration ID" });
+      }
+
+      const registration = await Registration.findByPk(registrationId);
+
+      if (!registration) {
+        return res.status(404).json({ message: "Registration not found" });
+      }
+
+      await registration.update({ checkInTime: new Date() });
+      res.status(200).json(registration);
+    } catch (error) {
+      res
+        .status(500)
+        .json({ message: "Error putting check in time", error: error.message });
+    }
+  },
+
 };
 
 module.exports = registrationController;
