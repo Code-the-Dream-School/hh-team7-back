@@ -7,7 +7,7 @@ const {
   verifyRoleInDB,
 } = require("../middleware/role-authorization");
 const upload = require('../middleware/multerMiddleware');
-const authMiddleware = require('./middleware/authentication');
+const authMiddleware = require('../middleware/authentication');
 
 // API v1 Routes
 // public routes
@@ -26,27 +26,24 @@ router.get(
     getUsers
   ); 
   
-// user routes - both admins and the users themselves are allowed to update or delete their data.
+// user routes - only admins are allowed to get user data.
 router.get(
-    '/:id', 
-    authorizeRoles([roles.ADMIN, roles.USER]),
-    verifyRoleInDB([roles.ADMIN, roles.USER]),    
+    '/:id',    
+    authorizeRoles([roles.ADMIN]),
+    verifyRoleInDB([roles.ADMIN]),
     getUserById
   );
   
+// user routes - only users are allowed to update user data.
 router.put(
     '/:id',
     authMiddleware,
-    authorizeRoles([roles.USER]),
-    verifyRoleInDB([roles.USER]),
     upload,
     updateUser
   );
   
 router.delete(
     '/:id',
-    authorizeRoles([roles.ADMIN, roles.USER]),
-    verifyRoleInDB([roles.ADMIN, roles.USER]),
     deleteUser
   );
 

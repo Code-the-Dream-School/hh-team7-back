@@ -6,14 +6,14 @@ const storage = multer.diskStorage({
   destination: (req, file, cb) => {
     if (req.originalUrl.includes('/users')) {
       const dirPath = path.join(__dirname, '../../public/uploads/users');
-      cb(null, dirPath);
+      cb(null, dirPath);          
     } else {
       const dirPath = path.join(__dirname, '../../public/uploads');
       cb(null, dirPath);
     }
   },
   filename: (req, file, cb) => {
-    const fileName = Date.now() + '-' + file.originalname;
+    const fileName = file.originalname;
     cb(null, fileName);
   },
 });

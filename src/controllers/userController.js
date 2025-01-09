@@ -4,7 +4,9 @@ const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const xss = require("xss");
-const sgMail = require('@sendgrid/mail')
+const sgMail = require('@sendgrid/mail');
+const path = require('path');
+const fs = require('fs').promises;
 
 // Function to sanitize and escape user input
 const sanitizeInput = (input) => {
@@ -168,7 +170,7 @@ async function getUsers(req, res) {
 // get user by id
 async function getUserById(req, res) {
   try {
-    const user = await User.findByPk(req.params.id);
+    const user = User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
@@ -182,6 +184,9 @@ async function getUserById(req, res) {
 // update user
 async function updateUser(req, res) {
   try {
+    if (req.user.id !== parseInt(req.params.id)) {
+      return res.status(403).json({ message: 'You are not authorized to update this user' });
+    }
     const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -198,13 +203,15 @@ async function updateUser(req, res) {
         const oldImagePath = path.join(__dirname, '../../public', user.profilePictureUrl);
         await fs.unlink(oldImagePath).catch(console.error);
       }
-      updateData.profilePictureUrl = `/uploads/users/${req.file.filename}`;
+      sanitizedData.profilePictureUrl = `/uploads/users/${req.file.filename}`;
     }
+    console.log("sanitizedData",sanitizedData);
     await user.update(sanitizedData);
     res.status(200).json(user);
   } catch (error) {
     // Clean up uploaded file if update fails
     if (req.file) {
+      console.log(req.file.path);
       await fs.unlink(req.file.path).catch(console.error);
     }
     console.error('Error updating user:', error);
@@ -215,6 +222,9 @@ async function updateUser(req, res) {
 //delete user
 async function deleteUser(req, res) {
   try {
+    if (req.user.id !== parseInt(req.params.id) && req.user.role !== 'ADMIN') {
+      return res.status(403).json({ message: 'You are not authorized to delete this user' });
+    }
     const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });

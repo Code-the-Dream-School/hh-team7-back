@@ -281,26 +281,23 @@ paths:
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
               type: object
               properties:
                 name:
                   type: string
-                  example: "John Doe"
+                  #example: "John Doe"
                 email:
                   type: string
-                  example: "john.doe@example.com"
+                  #example: "john.doe@example.com"
                 password:
                   type: string
-                  example: "newpassword123"
-                profilePictureUrl:
+                  #example: "newpassword123"
+                file: # File to be uploaded, which will be saved in the profilePictureUrl field in the database
                   type: string
                   format: binary
-                  example: "The user profile image"
-              required:
-                - name
-                - email
+                  #example: "The user profile image"
       responses:
         '200':
           description: User updated successfully
@@ -313,6 +310,7 @@ paths:
       responses:
         '204':
           description: User deleted successfully
+
   /public-events:
       get:
         tags:
@@ -501,7 +499,7 @@ paths:
                   type: string
                   enum: [draft, published]
                   example: "draft"
-                event_banner_url:
+                file: # File to be uploaded, which will be saved in the event_banner_url field in the database 
                   type: string
                   format: binary
                   description: "The event banner image"
