@@ -37,6 +37,14 @@ const Event = sequelize.define(
         len: [3, 100],
       },
     },
+    category: {
+      type: DataTypes.STRING,
+      allowNull: false,
+      defaultValue: 'Technology',
+      validate: {
+        isIn: [['Technology', 'Design', 'Business', 'Art', 'Music']],
+      },
+    },
     capacity: {
       type: DataTypes.INTEGER,
       allowNull: false,
