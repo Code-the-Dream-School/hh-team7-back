@@ -33,6 +33,9 @@ components:
           type: string
           enum: [organizer, attendee]
           example: "organizer"
+        profilePictureUrl:
+          type: string
+          example: "/uploads/users/user.jpg"
       required:
         - name
         - email
@@ -271,14 +274,30 @@ paths:
     put:
       tags:
         - Users
-      summary: Update user
-      security: []
+      summary: Update authenticated user's information
+      description: Allows an authenticated user to update their own profile (name, email, password, etc.)
+      security:
+        - BearerAuth: []  
       requestBody:
         required: true
         content:
-          application/json:
+          multipart/form-data:
             schema:
-              $ref: '#/components/schemas/User'
+              type: object
+              properties:
+                name:
+                  type: string
+                  #example: "John Doe"
+                email:
+                  type: string
+                  #example: "john.doe@example.com"
+                password:
+                  type: string
+                  #example: "newpassword123"
+                file: # File to be uploaded, which will be saved in the profilePictureUrl field in the database
+                  type: string
+                  format: binary
+                  #example: "The user profile image"
       responses:
         '200':
           description: User updated successfully
@@ -291,6 +310,7 @@ paths:
       responses:
         '204':
           description: User deleted successfully
+
   /public-events:
       get:
         tags:
@@ -479,7 +499,7 @@ paths:
                   type: string
                   enum: [draft, published]
                   example: "draft"
-                event_banner_url:
+                file: # File to be uploaded, which will be saved in the event_banner_url field in the database 
                   type: string
                   format: binary
                   description: "The event banner image"

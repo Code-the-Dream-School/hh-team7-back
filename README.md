@@ -125,7 +125,7 @@ Managing user sessions and ensuring security is paramount. The process involves:
     - Password (hashed, between 6 and 100 characters)
     - Role (either 'organizer' or 'attendee')
     - Created and modified dates (automatically set)
-        Includes hooks for password hashing during user creation and updating the modified_date before any user update.
+        Includes hooks for password hashing during user creation before any user update.
 
 ### Event Schema
 
