@@ -19,4 +19,12 @@ const REGISTRATION_STATUS = {
   CANCELED: "Canceled",
 };
 
-module.exports = { ROLES, EVENT_STATUS, EVENT_TYPE, REGISTRATION_STATUS };
+const EVENT_CATEGORIES = {
+  TECHNOLOGY: "Technology",
+  DESIGN: "Design",
+  BUSINESS: "Business",
+  ART: "Art",
+  MUSIC: "Music",
+};
+
+module.exports = { ROLES, EVENT_STATUS, EVENT_TYPE, REGISTRATION_STATUS, EVENT_CATEGORIES };

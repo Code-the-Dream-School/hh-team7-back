@@ -170,7 +170,7 @@ async function getUsers(req, res) {
 // get user by id
 async function getUserById(req, res) {
   try {
-    const user = User.findByPk(req.params.id);
+    const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
