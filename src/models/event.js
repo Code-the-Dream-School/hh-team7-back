@@ -1,6 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
-const { EVENT_STATUS, EVENT_TYPE } = require("../config/enums");
+const { EVENT_STATUS, EVENT_TYPE, EVENT_CATEGORIES } = require("../config/enums");
 
 const Event = sequelize.define(
   "Event",
@@ -38,12 +38,9 @@ const Event = sequelize.define(
       },
     },
     category: {
-      type: DataTypes.STRING,
+      type: DataTypes.ENUM(...Object.values(EVENT_CATEGORIES)),
+      defaultValue: EVENT_CATEGORIES.TECHNOLOGY,
       allowNull: false,
-      defaultValue: 'Technology',
-      validate: {
-        isIn: [['Technology', 'Design', 'Business', 'Art', 'Music']],
-      },
     },
     capacity: {
       type: DataTypes.INTEGER,
