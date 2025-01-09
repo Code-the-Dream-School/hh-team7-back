@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const { EVENT_STATUS, EVENT_TYPE } = require("../config/enums");
 
 const Event = sequelize.define(
   "Event",
@@ -45,12 +46,12 @@ const Event = sequelize.define(
       },
     },
     status: {
-      type: DataTypes.ENUM('Draft', 'Published', 'Canceled', 'Completed'),
-      defaultValue: 'Draft'
+      type: DataTypes.ENUM(...Object.values(EVENT_STATUS)),
+      defaultValue: EVENT_STATUS.DRAFT
     },
     eventType: {
-      type: DataTypes.ENUM('In-person', 'Virtual', 'Hybrid'),
-      defaultValue: 'In-person'
+      type: DataTypes.ENUM(...Object.values(EVENT_TYPE)),
+      defaultValue: EVENT_TYPE.IN_PERSON
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),

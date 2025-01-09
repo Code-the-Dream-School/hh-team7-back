@@ -1,5 +1,6 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
+const { REGISTRATION_STATUS } = require("../config/enums");
 
 const Registration = sequelize.define(
   "Registration",
@@ -23,11 +24,11 @@ const Registration = sequelize.define(
       primaryKey: true,
     },
     status: {
-      type: DataTypes.ENUM("confirmed", "canceled"),
-      defaultValue: "confirmed",
+      type: DataTypes.ENUM(...Object.values(REGISTRATION_STATUS)),
+      defaultValue: REGISTRATION_STATUS.CONFIRMED,
       allowNull: false,
       validate: {
-        isIn: [["confirmed", "canceled"]],
+        isIn: [Object.values(REGISTRATION_STATUS)],
       },
     },
     checkInTime: {

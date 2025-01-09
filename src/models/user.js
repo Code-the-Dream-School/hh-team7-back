@@ -1,8 +1,7 @@
 const { DataTypes } = require("sequelize");
 const sequelize = require("../config/db");
 const bcrypt = require("bcryptjs");
-const roles = require("../config/roles");
-const ROLES = require("../config/roles");
+const { ROLES } = require("../config/enums");
 
 const User = sequelize.define(
   "User",
@@ -37,7 +36,7 @@ const User = sequelize.define(
       },
     },
     role: {
-      type: DataTypes.ENUM(...Object.values(roles)),
+      type: DataTypes.ENUM(...Object.values(ROLES)),
       allowNull: false,
     },
   },
