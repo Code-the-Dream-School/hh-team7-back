@@ -27,7 +27,7 @@ const publicEventController = {
       }
 
       let whereConditions = {
-        is_private: false  
+        isPrivate: false  
       };
 
       if (search) {
@@ -79,7 +79,7 @@ const publicEventController = {
       const event = await Event.findOne({
         where: { 
           id: eventId,
-          is_private: false
+          isPrivate: false
         }
       });
       if (!event) {
