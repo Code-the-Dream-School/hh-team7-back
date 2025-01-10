@@ -2,8 +2,7 @@ const { Event, User } = require('../models');
 const xss = require('xss');
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
-const path = require('path');
-const fs = require('fs').promises;
+const cloudinary = require('cloudinary').v2;
 
 const sanitizeInput = (input) => {
   if (typeof input === 'string') {
@@ -24,15 +23,12 @@ const eventController = {
       }
       // Handle image upload
       if (req.file) {
-        eventData.eventBannerUrl = `/uploads/${req.file.filename}`;
+        eventData.eventBannerUrl = req.cloudinaryResult.secure_url;
       }
       eventData.organizerId = req.user.id; 
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(console.error);
-      }
       console.error('Error creating event:', error);
       res.status(500).json({ message: 'Error creating event', error: error.message });
     }
@@ -107,18 +103,14 @@ const eventController = {
       if (req.file) {
         // Delete old image if it exists
         if (event.eventBannerUrl) {
-          const oldImagePath = path.join(__dirname, '../../public', event.eventBannerUrl);
-          await fs.unlink(oldImagePath).catch(console.error);
+          const publicId = event.eventBannerUrl.split('/').pop().split('.')[0]; 
+          await cloudinary.uploader.destroy(publicId); 
         }
-        updateData.eventBannerUrl = `/uploads/${req.file.filename}`;
+        updateData.eventBannerUrl = req.cloudinaryResult.secure_url;
       }
       await event.update(updateData);
       res.status(200).json(event);
     } catch (error) {
-      // Clean up uploaded file if update fails
-      if (req.file) {
-        await fs.unlink(req.file.path).catch(console.error);
-      }
       console.error('Error updating event:', error);
       res.status(500).json({ message: 'Error updating event', error: error.message });
     }
@@ -141,8 +133,8 @@ const eventController = {
       }
       // Delete associated image if it exists
       if (event.eventBannerUrl) {
-        const imagePath = path.join(__dirname, '../../public', event.eventBannerUrl);
-        await fs.unlink(imagePath).catch(console.error);
+        const publicId = event.eventBannerUrl.split('/').pop().split('.')[0]; 
+        await cloudinary.uploader.destroy(publicId); 
       }
       await event.destroy();
       res.status(204).send();

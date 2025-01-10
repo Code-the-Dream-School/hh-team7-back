@@ -33,9 +33,6 @@ components:
           type: string
           enum: [organizer, attendee]
           example: "organizer"
-        profilePictureUrl:
-          type: string
-          example: "/uploads/users/user.jpg"
       required:
         - name
         - email
@@ -58,9 +55,6 @@ components:
         location:
           type: string
           example: "Convention Center"
-        category:
-          type: string
-          example: "Design"
         capacity:
           type: integer
           example: 500
@@ -76,7 +70,6 @@ components:
         - description
         - date
         - location
-        - category
         - capacity
 
     Registration:
@@ -274,30 +267,14 @@ paths:
     put:
       tags:
         - Users
-      summary: Update authenticated user's information
-      description: Allows an authenticated user to update their own profile (name, email, password, etc.)
-      security:
-        - BearerAuth: []  
+      summary: Update user
+      security: []
       requestBody:
         required: true
         content:
-          multipart/form-data:
+          application/json:
             schema:
-              type: object
-              properties:
-                name:
-                  type: string
-                  #example: "John Doe"
-                email:
-                  type: string
-                  #example: "john.doe@example.com"
-                password:
-                  type: string
-                  #example: "newpassword123"
-                file: # File to be uploaded, which will be saved in the profilePictureUrl field in the database
-                  type: string
-                  format: binary
-                  #example: "The user profile image"
+              $ref: '#/components/schemas/User'
       responses:
         '200':
           description: User updated successfully
@@ -310,7 +287,7 @@ paths:
       responses:
         '204':
           description: User deleted successfully
-
+          
   /public-events:
       get:
         tags:
@@ -428,9 +405,6 @@ paths:
                 location:
                   type: string
                   example: "Convention Center"
-                category:
-                  type: string
-                  example: "Design"
                 capacity:
                   type: integer
                   example: 500
@@ -489,9 +463,6 @@ paths:
                 location:
                   type: string
                   example: "Convention Center"
-                category:
-                  type: string
-                  example: "Design"
                 capacity:
                   type: integer
                   example: 500
@@ -499,7 +470,7 @@ paths:
                   type: string
                   enum: [draft, published]
                   example: "draft"
-                file: # File to be uploaded, which will be saved in the event_banner_url field in the database 
+                event_banner_url:
                   type: string
                   format: binary
                   description: "The event banner image"

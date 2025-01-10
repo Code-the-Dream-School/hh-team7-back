@@ -6,7 +6,7 @@ const {
   authorizeRoles,
   verifyRoleInDB,
 } = require("../middleware/role-authorization");
-const upload = require('../middleware/multerMiddleware');
+const { upload, uploadToCloudinary } = require('../middleware/multerMiddleware');
 const authMiddleware = require('../middleware/authentication');
 
 // API v1 Routes
@@ -39,6 +39,7 @@ router.put(
     '/:id',
     authMiddleware,
     upload,
+    uploadToCloudinary,
     updateUser
   );
   

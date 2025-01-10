@@ -5,8 +5,7 @@ const bcrypt = require("bcryptjs");
 const validator = require("validator");
 const xss = require("xss");
 const sgMail = require('@sendgrid/mail');
-const path = require('path');
-const fs = require('fs').promises;
+const cloudinary = require('cloudinary').v2;
 
 // Function to sanitize and escape user input
 const sanitizeInput = (input) => {
@@ -200,20 +199,14 @@ async function updateUser(req, res) {
     if (req.file) {
       // Delete old image if it exists
       if (user.profilePictureUrl) {
-        const oldImagePath = path.join(__dirname, '../../public', user.profilePictureUrl);
-        await fs.unlink(oldImagePath).catch(console.error);
+        const publicId = user.profilePictureUrl.split('/').pop().split('.')[0]; 
+        await cloudinary.uploader.destroy(publicId); 
       }
-      sanitizedData.profilePictureUrl = `/uploads/users/${req.file.filename}`;
+      sanitizedData.profilePictureUrl = req.cloudinaryResult.secure_url;
     }
-    console.log("sanitizedData",sanitizedData);
     await user.update(sanitizedData);
     res.status(200).json(user);
   } catch (error) {
-    // Clean up uploaded file if update fails
-    if (req.file) {
-      console.log(req.file.path);
-      await fs.unlink(req.file.path).catch(console.error);
-    }
     console.error('Error updating user:', error);
     res.status(500).json({ message: 'Error updating user', error: error.message });
   }
@@ -228,6 +221,10 @@ async function deleteUser(req, res) {
     const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
+    }
+    if (user.profilePictureUrl) {
+      const publicId = user.profilePictureUrl.split('/').pop().split('.')[0]; 
+      await cloudinary.uploader.destroy(publicId); 
     }
     await user.destroy();
     res.status(204).send();
