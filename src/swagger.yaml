@@ -486,7 +486,7 @@ paths:
                   type: string
                   enum: [draft, published]
                   example: "draft"
-                event_banner_url:
+                file:
                   type: string
                   format: binary
                   description: "The event banner image"
