@@ -14,7 +14,7 @@ const publicEventController = {
   
   async getAllEvents(req, res) {
     try {
-      const { page = 1, limit = 10, search = '', start_date, end_date } = req.query;
+      const { page = 1, limit = 10, search = '', start_date, end_date, category, location } = req.query;
 
       const pageNumber = parseInt(page, 10);
       const limitNumber = parseInt(limit, 10);
@@ -48,6 +48,14 @@ const publicEventController = {
         if (end_date) {
           whereConditions.date[Op.lte] = new Date(end_date); // <=
         }
+      }
+
+      if (category) {
+        whereConditions.category = category;  
+      }
+
+      if (location) {
+        whereConditions.location = { [Op.iLike]: `%${sanitizeInput(location)}%` };  
       }
 
       const events = await Event.findAndCountAll({
