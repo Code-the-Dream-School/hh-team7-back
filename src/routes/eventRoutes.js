@@ -6,7 +6,7 @@ const {
   authorizeRoles,
   verifyRoleInDB,
 } = require("../middleware/role-authorization");
-const upload = require('../middleware/multerMiddleware');
+const { upload, uploadToCloudinary } = require('../middleware/multerMiddleware');
 
 router.post(
   "/",
@@ -30,6 +30,7 @@ router.put(
   authorizeRoles([ROLES.ORGANIZER]),
   verifyRoleInDB([ROLES.ORGANIZER]),
   upload,
+  uploadToCloudinary,
   eventController.updateEvent
 );
 router.delete(
