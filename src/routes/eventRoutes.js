@@ -13,6 +13,7 @@ router.post(
   authorizeRoles([ROLES.ORGANIZER]),
   verifyRoleInDB([ROLES.ORGANIZER]),
   upload,
+  uploadToCloudinary,
   eventController.createEvent
 );
 router.get(
