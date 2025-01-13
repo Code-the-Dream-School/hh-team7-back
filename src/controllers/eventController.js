@@ -1,7 +1,8 @@
-const { Event, User } = require('../models');
+const { Event, User, Registration } = require('../models');
 const xss = require('xss');
 const { StatusCodes } = require("http-status-codes");
 const { BadRequestError, NotFoundError } = require("../errors");
+const { Op } = require('sequelize');
 const cloudinary = require('cloudinary').v2;
 
 const sanitizeInput = (input) => {
@@ -83,7 +84,8 @@ const eventController = {
       const eventId = sanitizeInput(req.params.id);
       const updateData = req.body;
       if (updateData.name) updateData.name = sanitizeInput(updateData.name);
-      if (updateData.description) updateData.description = sanitizeInput(updateData.description);
+      if (updateData.description)
+        updateData.description = sanitizeInput(updateData.description);
 
       // validate eventId and update data
       if (isNaN(eventId)) {
@@ -142,7 +144,56 @@ const eventController = {
       console.error('Error deleting event:', error);
       res.status(500).json({ message: 'Error deleting event', error: error.message });
     }
-  }
+  },
+
+  //Events of the next 7 days, includes the registration and user information of the organizer
+  async getUpcomingEvents(req, res) {
+    try {
+      const startOfToday = new Date();
+      startOfToday.setHours(0, 0, 0, 0);
+
+      const endOfNextWeek = new Date();
+      endOfNextWeek.setHours(23, 59, 59, 999); 
+      endOfNextWeek.setDate(endOfNextWeek.getDate() + 7);
+
+      const events = await Event.findAll({
+        where: {
+          [Op.or]: [
+            {
+              "$Registrations.UserId$": req.user.id,
+            },
+            {
+              organizerId: req.user.id,
+            },
+          ],
+          date: {
+            [Op.between]: [startOfToday, endOfNextWeek], 
+          },
+        },
+        include: [
+          {
+            model: Registration,
+            where: {
+              UserId: req.user.id,
+            },
+            required: false, 
+          },
+          {
+            model: User, 
+            as: "organizer",
+            required: false, 
+          },
+        ],
+      });
+
+      res.status(200).json(events);
+    } catch (error) {
+      res.status(500).json({
+        message: "Error fetching up coming events",
+        error: error.message,
+      });
+    }
+  },
 };
 
 module.exports = eventController;

@@ -21,6 +21,17 @@ router.get(
   eventController.getEvents
 );
 router.get(
+  "/my-events",
+  authorizeRoles([ROLES.ORGANIZER]),
+  verifyRoleInDB([ROLES.ORGANIZER]),
+  eventController.getMyEvents
+);
+router.get(
+  "/upcoming",
+  authorizeRoles([ROLES.ORGANIZER, ROLES.ATTENDEE]),
+  eventController.getUpcomingEvents
+);
+router.get(
   "/:id",
   authorizeRoles([ROLES.ORGANIZER, ROLES.ATTENDEE]),
   eventController.getEventById
