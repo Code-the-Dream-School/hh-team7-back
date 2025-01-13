@@ -7,10 +7,13 @@ User.belongsToMany(Event, { through: Registration });
 Event.belongsToMany(User, { through: Registration });
 
 User.hasMany(Registration);
-Registration.belongsTo(User);
+Registration.belongsTo(User, { as: "attendant", foreignKey: "UserId",});
 
 Event.hasMany(Registration);
 Registration.belongsTo(Event);
+
+Event.belongsTo(User, { as: "organizer", foreignKey: "organizerId" });
+User.hasMany(Event, { foreignKey: 'organizerId' });
 
 module.exports = {
   sequelize,
