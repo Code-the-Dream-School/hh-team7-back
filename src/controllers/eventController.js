@@ -26,7 +26,7 @@ const eventController = {
       if (req.file) {
         eventData.eventBannerUrl = req.cloudinaryResult.secure_url;
       }
-      eventData.organizerId = req.user.id; 
+      eventData.organizerId = req.user.id;
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
@@ -37,16 +37,22 @@ const eventController = {
 
   async getEvents(req, res) {
     try {
-      console.log(req.user)
+      const events = await Event.findAll({});
+      res.status(200).json(events);
+    } catch (error) {
+      console.error("Error fetching events:", error);
+      res
+        .status(500)
+        .json({ message: "Error fetching events", error: error.message });
+    }
+  },
+
+  async getMyEvents(req, res) {
+    try {
       const events = await Event.findAll({
         where: {
-          organizerId: req.user.id // filter by authenticated user
-        }
-        // include: [{
-        //   model: User,
-        //   as: 'organizer',
-        //   attributes: ['id', 'name', 'email']
-        // }]
+          organizerId: req.user.id,
+        },
       });
       res.status(200).json(events);
     } catch (error) {
@@ -64,11 +70,20 @@ const eventController = {
         return res.status(400).json({ message: 'Invalid event ID' });
       }
       const event = await Event.findOne({
-        where: { 
+        where: {
           id: eventId,
-          organizerId: req.user.id // ensure user owns the event
-        }
+        },
+        include: [
+          {
+            model: Registration,
+            where: {
+              UserId: req.user.id, 
+            },
+            required: false,
+          },
+        ],
       });
+      
       if (!event) {
         return res.status(404).json({ message: 'Event not found' });
       }
@@ -92,7 +107,7 @@ const eventController = {
         return res.status(400).json({ message: 'Invalid event ID' });
       }
       const event = await Event.findOne({
-        where: { 
+        where: {
           id: eventId,
           organizerId: req.user.id // ensure user owns the event
         }
@@ -106,7 +121,7 @@ const eventController = {
         // Delete old image if it exists
         if (event.eventBannerUrl) {
           const publicId = event.eventBannerUrl.split('/').pop().split('.')[0]; 
-          await cloudinary.uploader.destroy(publicId); 
+          await cloudinary.uploader.destroy(publicId);
         }
         updateData.eventBannerUrl = req.cloudinaryResult.secure_url;
       }
@@ -125,7 +140,7 @@ const eventController = {
         return res.status(400).json({ message: 'Invalid event ID' });
       }
       const event = await Event.findOne({
-        where: { 
+        where: {
           id: eventId,
           organizerId: req.user.id // Ensure user owns the event
         }
@@ -136,7 +151,7 @@ const eventController = {
       // Delete associated image if it exists
       if (event.eventBannerUrl) {
         const publicId = event.eventBannerUrl.split('/').pop().split('.')[0]; 
-        await cloudinary.uploader.destroy(publicId); 
+        await cloudinary.uploader.destroy(publicId);
       }
       await event.destroy();
       res.status(204).send();
