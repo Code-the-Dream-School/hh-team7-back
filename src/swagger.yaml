@@ -259,7 +259,8 @@ paths:
       tags:
         - Users
       summary: Get user by ID
-      security: []
+      security:
+        - BearerAuth: []
       responses:
         '200':
           description: User retrieved successfully
