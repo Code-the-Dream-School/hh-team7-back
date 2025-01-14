@@ -22,9 +22,20 @@ router.get(
   eventController.getEvents
 );
 router.get(
+  "/my-events",
+  authorizeRoles([ROLES.ORGANIZER]),
+  verifyRoleInDB([ROLES.ORGANIZER]),
+  eventController.getMyEvents
+);
+router.get(
+  "/upcoming",
+  authorizeRoles([ROLES.ORGANIZER, ROLES.ATTENDEE]),
+  eventController.getUpcomingEvents
+);
+router.get(
   "/:id",
   authorizeRoles([ROLES.ORGANIZER, ROLES.ATTENDEE]),
-  eventController.getEventById
+  eventController.eventDetails
 );
 router.put(
   "/:id",
@@ -39,6 +50,13 @@ router.delete(
   authorizeRoles([ROLES.ORGANIZER]),
   verifyRoleInDB([ROLES.ORGANIZER]),
   eventController.deleteEvent
+);
+
+router.get(
+  "/my-events/:id",
+  authorizeRoles([ROLES.ORGANIZER]),
+  verifyRoleInDB([ROLES.ORGANIZER]),
+  eventController.getRegistrationsByEvent
 );
 
 module.exports = router;
