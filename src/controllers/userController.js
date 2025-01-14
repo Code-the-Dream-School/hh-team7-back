@@ -215,9 +215,6 @@ async function updateUser(req, res) {
 //delete user
 async function deleteUser(req, res) {
   try {
-    if (req.user.id !== parseInt(req.params.id) && req.user.role !== 'ADMIN') {
-      return res.status(403).json({ message: 'You are not authorized to delete this user' });
-    }
     const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });

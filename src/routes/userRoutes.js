@@ -21,6 +21,7 @@ router.route('/password-reset/update').post(passwordResetUpdate);
 // Admin routes
 router.get(
     '/',
+    authMiddleware,
     authorizeRoles([ROLES.ADMIN]),
     verifyRoleInDB([ROLES.ADMIN]),
     getUsers
@@ -30,6 +31,8 @@ router.get(
 router.get(
     '/:id',    
     authMiddleware,
+    authorizeRoles([ROLES.ADMIN]),
+    verifyRoleInDB([ROLES.ADMIN]),
     getUserById
   );
   
@@ -44,6 +47,9 @@ router.put(
   
 router.delete(
     '/:id',
+    authMiddleware,
+    authorizeRoles([ROLES.ADMIN]),
+    verifyRoleInDB([ROLES.ADMIN]),
     deleteUser
   );
 
