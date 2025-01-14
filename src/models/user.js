@@ -79,8 +79,14 @@ const userBulkCreate = async () => {
   await sequelize.sync();
   await User.bulkCreate([
     {
-      name: "organizer test",
+      name: "organizer test 1",
       email: "alejandro7120@gmail.com",
+      password: "test1234!",
+      role: ROLES.ORGANIZER,
+    },
+    {
+      name: "organizer test 2",
+      email: "cristianrosalesunet@gmail.com",
       password: "test1234!",
       role: ROLES.ORGANIZER,
     },
