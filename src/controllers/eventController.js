@@ -20,7 +20,9 @@ const eventController = {
       eventData.description = sanitizeInput(eventData.description);
 
       if (!eventData.name || !eventData.date) {
-        return res.status(400).json({ message: 'Event name and date are required.' });
+        return res
+          .status(400)
+          .json({ message: "Event name and date are required." });
       }
       // Handle image upload
       if (req.file) {
@@ -30,8 +32,10 @@ const eventController = {
       const event = await Event.create(eventData);
       res.status(201).json(event);
     } catch (error) {
-      console.error('Error creating event:', error);
-      res.status(500).json({ message: 'Error creating event', error: error.message });
+      console.error("Error creating event:", error);
+      res
+        .status(500)
+        .json({ message: "Error creating event", error: error.message });
     }
   },
 
@@ -56,18 +60,20 @@ const eventController = {
       });
       res.status(200).json(events);
     } catch (error) {
-      console.error('Error fetching events:', error);
-      res.status(500).json({ message: 'Error fetching events', error: error.message });
+      console.error("Error fetching events:", error);
+      res
+        .status(500)
+        .json({ message: "Error fetching events", error: error.message });
     }
   },
 
-  async getEventById(req, res) {
+  async eventDetails(req, res) {
     try {
       const eventId = sanitizeInput(req.params.id);
 
       // validate eventId to ensure it's a valid number
       if (isNaN(eventId)) {
-        return res.status(400).json({ message: 'Invalid event ID' });
+        return res.status(400).json({ message: "Invalid event ID" });
       }
       const event = await Event.findOne({
         where: {
@@ -77,20 +83,22 @@ const eventController = {
           {
             model: Registration,
             where: {
-              UserId: req.user.id, 
+              UserId: req.user.id,
             },
             required: false,
           },
         ],
       });
-      
+
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: "Event not found" });
       }
       res.status(200).json(event);
     } catch (error) {
-      console.error('Error fetching event:', error);
-      res.status(500).json({ message: 'Error fetching event', error: error.message });
+      console.error("Error fetching event:", error);
+      res
+        .status(500)
+        .json({ message: "Error fetching event", error: error.message });
     }
   },
 
@@ -104,23 +112,23 @@ const eventController = {
 
       // validate eventId and update data
       if (isNaN(eventId)) {
-        return res.status(400).json({ message: 'Invalid event ID' });
+        return res.status(400).json({ message: "Invalid event ID" });
       }
       const event = await Event.findOne({
         where: {
           id: eventId,
-          organizerId: req.user.id // ensure user owns the event
-        }
+          organizerId: req.user.id, // ensure user owns the event
+        },
       });
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: "Event not found" });
       }
       // Handle image update
-      console.log("event.file",event.file)
+      console.log("event.file", event.file);
       if (req.file) {
         // Delete old image if it exists
         if (event.eventBannerUrl) {
-          const publicId = event.eventBannerUrl.split('/').pop().split('.')[0]; 
+          const publicId = event.eventBannerUrl.split("/").pop().split(".")[0];
           await cloudinary.uploader.destroy(publicId);
         }
         updateData.eventBannerUrl = req.cloudinaryResult.secure_url;
@@ -128,8 +136,10 @@ const eventController = {
       await event.update(updateData);
       res.status(200).json(event);
     } catch (error) {
-      console.error('Error updating event:', error);
-      res.status(500).json({ message: 'Error updating event', error: error.message });
+      console.error("Error updating event:", error);
+      res
+        .status(500)
+        .json({ message: "Error updating event", error: error.message });
     }
   },
 
@@ -137,27 +147,29 @@ const eventController = {
     try {
       const eventId = sanitizeInput(req.params.id);
       if (isNaN(eventId)) {
-        return res.status(400).json({ message: 'Invalid event ID' });
+        return res.status(400).json({ message: "Invalid event ID" });
       }
       const event = await Event.findOne({
         where: {
           id: eventId,
-          organizerId: req.user.id // Ensure user owns the event
-        }
+          organizerId: req.user.id, // Ensure user owns the event
+        },
       });
       if (!event) {
-        return res.status(404).json({ message: 'Event not found' });
+        return res.status(404).json({ message: "Event not found" });
       }
       // Delete associated image if it exists
       if (event.eventBannerUrl) {
-        const publicId = event.eventBannerUrl.split('/').pop().split('.')[0]; 
+        const publicId = event.eventBannerUrl.split("/").pop().split(".")[0];
         await cloudinary.uploader.destroy(publicId);
       }
       await event.destroy();
       res.status(204).send();
     } catch (error) {
-      console.error('Error deleting event:', error);
-      res.status(500).json({ message: 'Error deleting event', error: error.message });
+      console.error("Error deleting event:", error);
+      res
+        .status(500)
+        .json({ message: "Error deleting event", error: error.message });
     }
   },
 
@@ -168,7 +180,7 @@ const eventController = {
       startOfToday.setHours(0, 0, 0, 0);
 
       const endOfNextWeek = new Date();
-      endOfNextWeek.setHours(23, 59, 59, 999); 
+      endOfNextWeek.setHours(23, 59, 59, 999);
       endOfNextWeek.setDate(endOfNextWeek.getDate() + 7);
 
       const events = await Event.findAll({
@@ -182,7 +194,7 @@ const eventController = {
             },
           ],
           date: {
-            [Op.between]: [startOfToday, endOfNextWeek], 
+            [Op.between]: [startOfToday, endOfNextWeek],
           },
         },
         include: [
@@ -191,12 +203,12 @@ const eventController = {
             where: {
               UserId: req.user.id,
             },
-            required: false, 
+            required: false,
           },
           {
-            model: User, 
+            model: User,
             as: "organizer",
-            required: false, 
+            required: false,
           },
         ],
       });
@@ -207,6 +219,48 @@ const eventController = {
         message: "Error fetching up coming events",
         error: error.message,
       });
+    }
+  },
+
+  async getRegistrationsByEvent(req, res) {
+    try {
+      const eventId = sanitizeInput(req.params.id);
+      const currentUserId = req.user.id;
+
+      const event = await Event.findOne({
+        where: {
+          id: eventId,
+          organizerId: currentUserId,
+        },
+      });
+
+      if (!event) {
+        return res
+          .status(404)
+          .json({ message: "Event not found or user is not owner of this event" });
+      }
+
+      const registrations = await Registration.findAll({
+        where: {
+          EventId: eventId,
+        },
+        include: [
+          {
+            model: User,
+            as: "attendant"
+          },
+        ],
+      });
+
+      res.status(200).json({ event, registrations });
+    } catch (error) {
+      console.error("Error fetching event registrations:", error);
+      res
+        .status(500)
+        .json({
+          message: "Error fetching event registrations",
+          error: error.message,
+        });
     }
   },
 };
