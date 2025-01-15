@@ -169,6 +169,23 @@ async function getUsers(req, res) {
 // get user by id
 async function getUserById(req, res) {
   try {
+    if (req.user.id !== parseInt(req.params.id)) {
+      return res.status(403).json({ message: 'You are not authorized to get this user' });
+    }
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error fetching user:', error);
+    res.status(500).json({ message: 'Error fetching user', error: error.message });
+  }
+}
+
+// get any user by id
+async function getAnyUserById(req, res) {
+  try {
     const user = await User.findByPk(req.params.id);
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
@@ -368,4 +385,4 @@ async function passwordResetUpdate(req, res, next) {
   }
 }
 
-module.exports = { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, getUserById, updateMyUser, deleteUser, updateAnyUser };
+module.exports = { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, getUserById, getAnyUserById, updateMyUser, deleteUser, updateAnyUser };
