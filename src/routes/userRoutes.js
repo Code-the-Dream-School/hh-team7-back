@@ -27,12 +27,9 @@ router.get(
     getUsers
   ); 
   
-// user routes - only admins are allowed to get user data.
 router.get(
     '/:id',    
     authMiddleware,
-    authorizeRoles([ROLES.ADMIN]),
-    verifyRoleInDB([ROLES.ADMIN]),
     getUserById
   );
   
