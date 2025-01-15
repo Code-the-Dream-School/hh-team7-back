@@ -6,6 +6,12 @@ const Event = require('./event');
 const Registration = sequelize.define(
   "Registration",
   {
+    id: {
+      type: 'INTEGER',
+      allowNull: false,
+      primaryKey: true,
+      autoIncrement: true,
+    },
     status: {
       type: DataTypes.ENUM(...Object.values(REGISTRATION_STATUS)),
       defaultValue: REGISTRATION_STATUS.CONFIRMED,

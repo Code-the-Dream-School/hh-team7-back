@@ -21,12 +21,12 @@ router.route('/password-reset/update').post(passwordResetUpdate);
 // Admin routes
 router.get(
     '/',
+    authMiddleware,
     authorizeRoles([ROLES.ADMIN]),
     verifyRoleInDB([ROLES.ADMIN]),
     getUsers
   ); 
   
-// user routes - only admins are allowed to get user data.
 router.get(
     '/:id',    
     authMiddleware,
@@ -44,6 +44,9 @@ router.put(
   
 router.delete(
     '/:id',
+    authMiddleware,
+    authorizeRoles([ROLES.ADMIN]),
+    verifyRoleInDB([ROLES.ADMIN]),
     deleteUser
   );
 
