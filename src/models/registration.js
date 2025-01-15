@@ -39,7 +39,7 @@ const Registration = sequelize.define(
           if (!event) {
             throw new Error("Event not found for the provided EventId");
           }
-          if (registration.checkInTime < event.date) {
+          if (registration.checkInTime <= event.date) {
             throw new Error("Check-in time must be on or after the event date");
           }
         }
