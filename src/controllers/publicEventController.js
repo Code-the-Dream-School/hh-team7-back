@@ -51,7 +51,8 @@ const publicEventController = {
       }
 
       if (category) {
-        whereConditions.category = category;  
+        const categoriesArray = category.split(',').map(c => c.trim()); 
+        whereConditions.category = { [Op.in]: categoriesArray };  
       }
 
       if (location) {
