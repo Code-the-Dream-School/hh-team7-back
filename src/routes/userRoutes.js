@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, updateUser, getUserById, deleteUser } = require('../controllers/userController');
+const { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, updateMyUser, getUserById, deleteUser, updateAnyUser } = require('../controllers/userController');
 const router = express.Router();
 const { ROLES } = require("../config/enums");
 const {
@@ -39,7 +39,7 @@ router.put(
     authMiddleware,
     upload,
     uploadToCloudinary,
-    updateUser
+    updateMyUser
   );
   
 router.delete(
@@ -49,5 +49,15 @@ router.delete(
     verifyRoleInDB([ROLES.ADMIN]),
     deleteUser
   );
+
+router.put(
+  '/user/:id',
+  authMiddleware,
+  authorizeRoles([ROLES.ADMIN]),
+  verifyRoleInDB([ROLES.ADMIN]),
+  upload,
+  uploadToCloudinary,
+  updateAnyUser
+);
 
 module.exports = router;
