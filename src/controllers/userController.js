@@ -181,7 +181,7 @@ async function getUserById(req, res) {
 }
 
 // update user
-async function updateUser(req, res) {
+async function updateMyUser(req, res) {
   try {
     if (req.user.id !== parseInt(req.params.id)) {
       return res.status(403).json({ message: 'You are not authorized to update this user' });
@@ -198,6 +198,32 @@ async function updateUser(req, res) {
     // Handle image update
     if (req.file) {
       // Delete old image if it exists
+      if (user.profilePictureUrl) {
+        const publicId = user.profilePictureUrl.split('/').pop().split('.')[0]; 
+        await cloudinary.uploader.destroy(publicId); 
+      }
+      sanitizedData.profilePictureUrl = req.cloudinaryResult.secure_url;
+    }
+    await user.update(sanitizedData);
+    res.status(200).json(user);
+  } catch (error) {
+    console.error('Error updating user:', error);
+    res.status(500).json({ message: 'Error updating user', error: error.message });
+  }
+}
+
+async function updateAnyUser(req, res) {
+  try {
+    const user = await User.findByPk(req.params.id);
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    const sanitizedData = {
+      name: sanitizeInput(req.body.name),
+      email: sanitizeInput(req.body.email),
+      role: sanitizeInput(req.body.role),
+    };
+    if (req.file) {
       if (user.profilePictureUrl) {
         const publicId = user.profilePictureUrl.split('/').pop().split('.')[0]; 
         await cloudinary.uploader.destroy(publicId); 
@@ -342,4 +368,4 @@ async function passwordResetUpdate(req, res, next) {
   }
 }
 
-module.exports = { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, getUserById, updateUser, deleteUser };
+module.exports = { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, getUserById, updateMyUser, deleteUser, updateAnyUser };
