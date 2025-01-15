@@ -1,5 +1,5 @@
 const express = require('express');
-const { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, updateMyUser, getUserById, deleteUser, updateAnyUser } = require('../controllers/userController');
+const { register, login, logout, passwordResetRequest, passwordResetVerify, passwordResetUpdate, getUsers, updateMyUser, getUserById, getAnyUserById, deleteUser, updateAnyUser } = require('../controllers/userController');
 const router = express.Router();
 const { ROLES } = require("../config/enums");
 const {
@@ -32,7 +32,15 @@ router.get(
     authMiddleware,
     getUserById
   );
-  
+
+router.get(
+    '/user/:id',    
+    authMiddleware,
+    authorizeRoles([ROLES.ADMIN]),
+    verifyRoleInDB([ROLES.ADMIN]),
+    getAnyUserById
+  );
+
 // user routes - only users are allowed to update user data.
 router.put(
     '/:id',
