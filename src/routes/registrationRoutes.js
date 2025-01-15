@@ -7,6 +7,6 @@ router.get('/', registrationController.getRegistrations);
 router.get('/:id', registrationController.getRegistrationById);
 router.put('/:id', registrationController.updateRegistration);
 router.delete('/:id', registrationController.deleteRegistration);
-router.post('/:id', registrationController.putCheckInTime);
+router.put('/:id/check-in', registrationController.putCheckInTime);
 
 module.exports = router;
