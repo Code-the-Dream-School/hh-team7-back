@@ -34,6 +34,7 @@ const userRoutes = require('./routes/userRoutes');
 const publicRouter = require('./routes/publicRouter');
 const eventRoutes = require('./routes/eventRoutes');
 const registrationRoutes = require('./routes/registrationRoutes');
+const statisticsRoute = require('./routes/statisticsRoutes'); 
 
 // error handler + auth middleware
 const authMiddleware = require('./middleware/authentication');
@@ -92,6 +93,7 @@ app.use('/api/v1/users', userRoutes);
 app.use('/api/v1/public-events', publicRouter);
 app.use('/api/v1/events', authMiddleware, eventRoutes);
 app.use('/api/v1/registrations', authMiddleware, registrationRoutes);
+app.use('/api/v1', statisticsRoute);
 
 app.use(notFoundMiddleware);
 app.use(errorHandlerMiddleware);
