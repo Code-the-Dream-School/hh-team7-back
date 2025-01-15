@@ -5,7 +5,7 @@ info:
   description: API for managing events, users, and registrations
 
 servers:
-  - url: http://localhost:8000/api/v1
+  - url: https://hh-team7-back-q72e.onrender.com/api/v1
     description: Local development server
 
 components:
