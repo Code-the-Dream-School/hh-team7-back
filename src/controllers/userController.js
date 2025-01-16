@@ -1,4 +1,4 @@
-const { User } = require('../models');
+const { Event, User, Registration } = require('../models');
 require("dotenv").config();
 const jwt = require("jsonwebtoken");
 const bcrypt = require("bcryptjs");
@@ -6,6 +6,7 @@ const validator = require("validator");
 const xss = require("xss");
 const sgMail = require('@sendgrid/mail');
 const cloudinary = require('cloudinary').v2;
+const { Op } = require('sequelize');
 
 // Function to sanitize and escape user input
 const sanitizeInput = (input) => {
@@ -176,7 +177,85 @@ async function getUserById(req, res) {
     if (!user) {
       return res.status(404).json({ message: 'User not found' });
     }
-    res.status(200).json(user);
+
+    // Fetch statistics
+    const [attendedEventsCount, createdEventsCount, upcomingEventsCount, pastEventsCount, createdEvents] = await Promise.all([
+      // Total number of attended events
+      Registration.count({
+        where: { UserId: req.params.id },
+      }),
+
+      // Total number of created events
+      Event.count({
+        where: { organizerId: req.params.id },
+      }),
+
+      // Total number of upcoming events
+      Event.count({
+        where: {
+          organizerId: req.params.id,
+          date: { [Op.gt]: new Date() }, // Events with a future date
+        },
+      }),
+
+      // Total number of past events
+      Event.count({
+        where: {
+          organizerId: req.params.id,
+          date: { [Op.lt]: new Date() }, // Events with a past date
+        },
+      }),
+
+      // Events created by the user
+      Event.findAll({
+        where: { organizerId: req.params.id },
+        attributes: ['id', 'name', 'date'],
+        include: [
+          {
+            model: Registration,
+            as: 'Registrations',
+            attributes: ['id', "UserId"],
+            include: [
+              {
+                model: User,
+                as: "attendant",
+                attributes: ['name', 'email'],
+              },
+            ],
+            
+          },
+        ],
+      }),
+    ]);
+
+    const transformedCreatedEvents = createdEvents.map((event) => {
+      const participants = event.Registrations.map((registration) => ({
+        name: registration.attendant.name,
+        email: registration.attendant.email,
+      }));
+      return {
+        id: event.id,
+        name: event.name,
+        date: event.date,
+        participantsCount: participants.length,
+        participants,
+      };
+    });
+
+    res.status(200).json({
+      id: user.id,
+      name: user.name,
+      email: user.email, 
+      role: user.role,
+      profilePictureUrl:user.profilePictureUrl,
+      statistics: {
+      eventsAttended: attendedEventsCount,
+      eventsCreated: createdEventsCount,
+      upcomingEvents: upcomingEventsCount,
+      pastEvents: pastEventsCount,
+    },
+     createdEvents: transformedCreatedEvents,
+  });
   } catch (error) {
     console.error('Error fetching user:', error);
     res.status(500).json({ message: 'Error fetching user', error: error.message });
