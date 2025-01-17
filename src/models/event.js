@@ -28,6 +28,11 @@ const Event = sequelize.define(
       allowNull: false,
       validate: {
         isDate: true,
+        isFuture(value) {
+          if (value < new Date()) {
+            throw new Error("The date of the event cannot be in the past");
+          }
+        },
       },
     },
     location: {
@@ -52,11 +57,11 @@ const Event = sequelize.define(
     },
     status: {
       type: DataTypes.ENUM(...Object.values(EVENT_STATUS)),
-      defaultValue: EVENT_STATUS.DRAFT
+      defaultValue: EVENT_STATUS.DRAFT,
     },
     eventType: {
       type: DataTypes.ENUM(...Object.values(EVENT_TYPE)),
-      defaultValue: EVENT_TYPE.IN_PERSON
+      defaultValue: EVENT_TYPE.IN_PERSON,
     },
     price: {
       type: DataTypes.DECIMAL(10, 2),
@@ -71,10 +76,17 @@ const Event = sequelize.define(
       allowNull: false,
       validate: {
         isDate: true,
-        isBeforeOrSameDay(value) {
-          if (value > this.date) {
+        isValidDeadline(value) {
+          const now = new Date();
+          const eventDate = this.date;
+
+          if (new Date(value) < now) {
+            throw new Error("Registration deadline cannot be in the past.");
+          }
+
+          if (new Date(value) > eventDate) {
             throw new Error(
-              "Registration deadline must be on or before the event date"
+              "Registration deadline must be on or before the event date."
             );
           }
         },
