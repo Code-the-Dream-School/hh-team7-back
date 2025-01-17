@@ -41,20 +41,24 @@ const authMiddleware = require('./middleware/authentication');
 const notFoundMiddleware = require('./middleware/not-found');
 const errorHandlerMiddleware = require('./middleware/error-handler');
 
-// rate limiting configuration
 const limiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
   max: 100, // limit each IP to 100 requests per windowMs
   message: 'Too many requests from this IP, please try again later.',
   standardHeaders: true, // return rate limit info in the `RateLimit-*` headers
   legacyHeaders: false, // disable the `X-RateLimit-*` headers
+  skip: (req) => {
+    const ip = req.ip;
+    // Skip rate limiting for localhost (IPv4 and IPv6)
+    return ip === '127.0.0.1' || ip === '::1';
+  },
 });
+app.use(limiter);
 
 // apply security middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" } 
 }));
-app.use(limiter);
 app.use(cookieParser());
 app.use(xss());
 
